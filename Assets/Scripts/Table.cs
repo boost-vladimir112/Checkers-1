@@ -14,11 +14,12 @@ public class Table : MonoBehaviour
 		foreach (Checker c in whiteChecker)
 		{
 			c.SetPosition(c.positionX, c.positionY);
+			c.owerList = whiteChecker;
 		}
 		foreach (Checker c in blackChecker)
 		{
 			c.SetPosition(c.positionX, c.positionY);
-
+			c.owerList = blackChecker;
 		}
 	}
 	private void OnDrawGizmosSelected()

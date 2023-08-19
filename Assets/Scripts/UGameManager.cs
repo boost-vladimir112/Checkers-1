@@ -7,6 +7,8 @@ public class UGameManager : MonoBehaviour
 	public GameObject currentCircle;
 	public Checker currentChecker;
 	public Table table;
+	public int step = 1;
+	public bool needToKick;
 	private void Start()
 	{
 
@@ -19,11 +21,86 @@ public class UGameManager : MonoBehaviour
 			Vector3 pos = GetMouseWorldPosition(table.transform.position);
 			if (currentChecker != null)
 			{
-
-				if (currentChecker.Move(pos))
+				if (!needToKick && currentChecker.Move(pos))
 				{
 					currentCircle.SetActive(false);
 					currentChecker = null;
+					NextStep();
+					if (step % 2 == 1)
+					{
+						foreach (Checker c in table.whiteChecker)
+						{
+							if (c.AbleKick())
+							{
+								needToKick = true;
+								Debug.Log(c.name + " need kick");
+							}
+						}
+					}
+					else
+					{
+						foreach (Checker c in table.blackChecker)
+						{
+							if (c.AbleKick())
+							{
+								needToKick = true;
+								Debug.Log(c.name + " need kick");
+							}
+						}
+					}
+				}
+				else if(needToKick)
+				{
+					Debug.Log("We need to Kick");
+
+					if (currentChecker.Kick(pos))
+					{
+						needToKick = false;
+						if (step % 2 == 1)
+							foreach (Checker c in table.whiteChecker)
+								if (c.AbleKick())
+									needToKick = true;
+
+						if (step % 2 == 0)
+							foreach (Checker c in table.blackChecker)
+								if (c.AbleKick())
+									needToKick = true;
+
+						if (needToKick) Debug.Log("We also need to Kick");
+						if (needToKick)
+						{
+							currentCircle.transform.position = currentChecker.transform.position;
+						}
+						else
+						{
+							currentCircle.SetActive(false);
+							currentChecker = null;
+							NextStep();
+
+							if (step % 2 == 1)
+							{
+								foreach (Checker c in table.whiteChecker)
+								{
+									if (c.AbleKick())
+									{
+										needToKick = true;
+										Debug.Log(c.name + " need kick");
+									}
+								}
+							}
+							else
+							{
+								foreach (Checker c in table.blackChecker)
+								{
+									if (c.AbleKick())
+									{
+										needToKick = true;
+										Debug.Log(c.name + " need kick");
+									}
+								}
+							}
+						}
+					}
 				}
 				else
 				{
@@ -38,12 +115,18 @@ public class UGameManager : MonoBehaviour
 		}
 	}
 
+	public void NextStep()
+	{
+		step++;
+		Debug.Log("Step: " + step);
+	}
 	public void ChooseCurrent(Vector3 pos)
 	{
 		int x = Mathf.RoundToInt(pos.x), y = Mathf.RoundToInt(pos.y);
-		currentChecker = table[y, x];
-		if(currentChecker != null)
+		if(table[y, x] != null && table[y, x].isWhite == (step % 2 == 1))
 		{
+			currentChecker = table[y, x];
+
 			currentCircle.SetActive(true);
 			currentCircle.transform.position = currentChecker.transform.position;
 		}
