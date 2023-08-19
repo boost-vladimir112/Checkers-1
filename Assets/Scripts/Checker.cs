@@ -70,21 +70,75 @@ public class Checker : MonoBehaviour
 			if (positionY - posY > 0 == isWhite) return false;
 		}
 
-		if (Mathf.Abs(positionX - posX) == 2)
+		
+		int ex = (positionX + posX) / 2, ey = (positionY + posY) / 2;
+		if (table[ey, ex] == null || table[(positionY + posY) / 2, (positionX + posX) / 2].isWhite == this.isWhite) return false;
+		SetPosition(posX, posY);
+
+		// Ñúåäàåì øàøêó
+		Checker c = table[ey, ex];
+		table[ey, ex] = null;
+		c.owerList.Remove(c);
+
+		Destroy(c.gameObject);
+		return true;
+	}
+	public bool AbleMove()
+	{
+		int tx, ty;
+		ty = positionY + 1; tx = positionX + 1;
+		if (ty <= 7 && tx <= 7 && (isWhite || isQueen))
 		{
-			int ex = (positionX + posX) / 2, ey = (positionY + posY) / 2;
-			if (table[ey, ex] == null || table[(positionY + posY) / 2, (positionX + posX) / 2].isWhite == this.isWhite) return false;
-			SetPosition(posX, posY);
+			if (table[ty, tx] == null) return true;
+		}
 
-			// Ñúåäàåì øàøêó
-			Checker c = table[ey, ex];
-			table[ey, ex] = null;
-			c.owerList.Remove(c);
+		ty = positionY - 1; tx = positionX + 1;
+		if (ty >= 0 && tx <= 7 && (!isWhite || isQueen))
+		{
+			if (table[ty, tx] == null) return true;
+		}
 
-			Destroy(c.gameObject);
-			return true;
+		ty = positionY - 1; tx = positionX - 1;
+		if (ty >= 0 && tx >= 0 && (!isWhite || isQueen))
+		{
+			if (table[ty, tx] == null) return true;
+		}
+		
+		ty = positionY + 1; tx = positionX - 1;
+		if (ty <= 7 && tx >= 0 && (isWhite || isQueen))
+		{
+			if (table[ty, tx] == null) return true;
 		}
 		return false;
+	}
+	public bool AbleMove(int posX, int posY, Checker[,] temp_table)
+	{
+		if (posX < 0 || posX > 7 || posY < 0 || posY > 7) return false;
+		if (Mathf.Abs(positionX - posX) != 1 ||  Mathf.Abs(positionY - posY) != 1 || temp_table[posY, posX] != null) return false;
+
+		if (!isQueen)
+		{
+			if (positionY - posY < 0 != isWhite) return false;
+			if (positionY - posY > 0 == isWhite) return false;
+		}
+
+		return true;
+	}
+	public bool AbleKick(int posX, int posY, Checker[,] temp_table)
+	{
+		if (posX < 0 || posX > 7 || posY < 0 || posY > 7) return false;
+		if (Mathf.Abs(positionX - posX) != 2 || Mathf.Abs(positionY - posY) != 2 || temp_table[posY, posX] != null) return false;
+
+		if (!isQueen)
+		{
+			if (positionY - posY < 0 != isWhite) return false;
+			if (positionY - posY > 0 == isWhite) return false;
+		}
+
+		int ex = (positionX + posX) / 2, ey = (positionY + posY) / 2;
+		if (temp_table[ey, ex] == null || temp_table[ey, ex].isWhite == this.isWhite) return false;
+
+		return true;
 	}
 	public bool AbleKick()
 	{

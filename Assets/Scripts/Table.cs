@@ -5,21 +5,21 @@ using UnityEngine;
 public class Table : MonoBehaviour
 {
 	public Checker[,] squareArray;
-	public List<Checker> whiteChecker, blackChecker;
+	public List<Checker> whiteCheckers, blackCheckers;
 
 	private void Start()
 	{
 		squareArray = new Checker[8, 8];
 
-		foreach (Checker c in whiteChecker)
+		foreach (Checker c in whiteCheckers)
 		{
 			c.SetPosition(c.positionX, c.positionY);
-			c.owerList = whiteChecker;
+			c.owerList = whiteCheckers;
 		}
-		foreach (Checker c in blackChecker)
+		foreach (Checker c in blackCheckers)
 		{
 			c.SetPosition(c.positionX, c.positionY);
-			c.owerList = blackChecker;
+			c.owerList = blackCheckers;
 		}
 	}
 	private void OnDrawGizmosSelected()

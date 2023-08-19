@@ -9,6 +9,9 @@ public class UGameManager : MonoBehaviour
 	public Table table;
 	public int step = 1;
 	public bool needToKick;
+
+	public delegate void VoidFunc();
+	public event VoidFunc WinWhite, WinBlack;
 	private void Start()
 	{
 
@@ -28,7 +31,7 @@ public class UGameManager : MonoBehaviour
 					NextStep();
 					if (step % 2 == 1)
 					{
-						foreach (Checker c in table.whiteChecker)
+						foreach (Checker c in table.whiteCheckers)
 						{
 							if (c.AbleKick())
 							{
@@ -39,7 +42,7 @@ public class UGameManager : MonoBehaviour
 					}
 					else
 					{
-						foreach (Checker c in table.blackChecker)
+						foreach (Checker c in table.blackCheckers)
 						{
 							if (c.AbleKick())
 							{
@@ -57,12 +60,12 @@ public class UGameManager : MonoBehaviour
 					{
 						needToKick = false;
 						if (step % 2 == 1)
-							foreach (Checker c in table.whiteChecker)
+							foreach (Checker c in table.whiteCheckers)
 								if (c.AbleKick())
 									needToKick = true;
 
 						if (step % 2 == 0)
-							foreach (Checker c in table.blackChecker)
+							foreach (Checker c in table.blackCheckers)
 								if (c.AbleKick())
 									needToKick = true;
 
@@ -77,9 +80,12 @@ public class UGameManager : MonoBehaviour
 							currentChecker = null;
 							NextStep();
 
+							if (table.whiteCheckers.Count == 0) WinBlack?.Invoke();
+							if (table.blackCheckers.Count == 0) WinWhite?.Invoke();
+
 							if (step % 2 == 1)
 							{
-								foreach (Checker c in table.whiteChecker)
+								foreach (Checker c in table.whiteCheckers)
 								{
 									if (c.AbleKick())
 									{
@@ -90,7 +96,7 @@ public class UGameManager : MonoBehaviour
 							}
 							else
 							{
-								foreach (Checker c in table.blackChecker)
+								foreach (Checker c in table.blackCheckers)
 								{
 									if (c.AbleKick())
 									{
