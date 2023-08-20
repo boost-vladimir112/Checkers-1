@@ -941,6 +941,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (6)
@@ -1188,6 +1192,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -1328,6 +1336,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker
@@ -1573,6 +1585,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -2142,6 +2158,8 @@ MonoBehaviour:
   currentCircle: {fileID: 3127032}
   currentChecker: {fileID: 0}
   table: {fileID: 965858786}
+  step: 1
+  needToKick: 0
 --- !u!1001 &523695820
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2149,6 +2167,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (7)
@@ -2234,6 +2256,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -2655,6 +2681,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (1)
@@ -3056,6 +3086,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -3248,6 +3282,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -3569,6 +3607,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -3718,6 +3760,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -3909,7 +3955,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5753999ec1a1dab4389b805902cc0643, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whiteChecker:
+  whiteCheckers:
   - {fileID: 1797210411}
   - {fileID: 1685225207}
   - {fileID: 82439225}
@@ -3922,7 +3968,7 @@ MonoBehaviour:
   - {fileID: 428893970}
   - {fileID: 358186460}
   - {fileID: 1326801029}
-  blackChecker:
+  blackCheckers:
   - {fileID: 1501781088}
   - {fileID: 2075421014}
   - {fileID: 556550844}
@@ -3965,6 +4011,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (5)
@@ -4034,6 +4084,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (11)
@@ -4103,6 +4157,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -4340,6 +4398,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (2)
@@ -5419,6 +5481,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (3)
@@ -5568,6 +5634,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -5821,6 +5891,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -5922,6 +5996,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 
@@ -6582,6 +6660,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (10)
@@ -7067,6 +7149,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (9)
@@ -7488,6 +7574,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (8)
@@ -7741,6 +7831,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -4137828939526261149, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 7219897081910938701, guid: 5802ffaee4ffdeb4993c55f4395631ce, type: 3}
       propertyPath: m_Name
       value: White Checker (4)
@@ -7810,6 +7904,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1093947801}
     m_Modifications:
+    - target: {fileID: -2700947605141878310, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
+      propertyPath: table
+      value: 
+      objectReference: {fileID: 965858786}
     - target: {fileID: 6917249479388194017, guid: 5ce010134cfbe8e449be2e2bb90cd880, type: 3}
       propertyPath: table
       value: 

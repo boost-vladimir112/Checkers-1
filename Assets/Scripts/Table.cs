@@ -13,12 +13,12 @@ public class Table : MonoBehaviour
 
 		foreach (Checker c in whiteCheckers)
 		{
-			c.SetPosition(c.positionX, c.positionY);
+			c.checkerControll.SetPosition(c.positionX, c.positionY);
 			c.owerList = whiteCheckers;
 		}
 		foreach (Checker c in blackCheckers)
 		{
-			c.SetPosition(c.positionX, c.positionY);
+			c.checkerControll.SetPosition(c.positionX, c.positionY);
 			c.owerList = blackCheckers;
 		}
 	}
