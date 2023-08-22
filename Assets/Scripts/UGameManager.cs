@@ -9,6 +9,7 @@ public class UGameManager : MonoBehaviour
 	public Table table;
 	public int step = 1;
 	public bool needToKick;
+	public AIBot aiBot;
 
 	public delegate void VoidFunc();
 	public event VoidFunc WinWhite, WinBlack;
@@ -37,11 +38,25 @@ public class UGameManager : MonoBehaviour
 				}
 				else if(needToKick)
 				{
-					Debug.Log("We need to Kick");
+					Debug.Log("We need to Kick " + pos);
 
 					if (CheckerControll.AbleKick(currentChecker, pos, table.squareArray))
 					{
+						Debug.Log("Kick " + pos);
 						CheckerControll.Kick(currentChecker, pos, table.squareArray);
+						table.whiteCheckers.Clear();
+						table.blackCheckers.Clear();
+						for (int y = 0; y < 8; y++)
+						{
+							for (int x = 0; x < 8; x++)
+							{
+								if (table[y, x] != null)
+								{
+									if (table[y, x].isWhite) table.whiteCheckers.Add(table[y, x]);
+									else table.blackCheckers.Add(table[y, x]);
+								}
+							}
+						}
 						currentChecker.transform.position = new Vector3(currentChecker.positionX, currentChecker.positionY) + table.transform.position;
 						needToKick = false;
 						if(CheckerControll.AbleKick(currentChecker, table.squareArray))
@@ -126,6 +141,8 @@ public class UGameManager : MonoBehaviour
 				WinWhite?.Invoke();
 			}
 		}
+
+		//Debug.Log(AIBot.GetMoves(table.squareArray, step % 2).Length);
 	}
 	public void ChooseCurrent(Vector3 pos)
 	{

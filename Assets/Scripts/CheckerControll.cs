@@ -51,6 +51,7 @@ public class CheckerControll : MonoBehaviour
 		Checker c = area[sy, sx];
 		area[sy, sx] = null;
 		c.positionX = ex; c.positionY = ey;
+		Destroy(area[(sy + ey) / 2, (sx + ex) / 2].gameObject);
 		area[(sy + ey) / 2, (sx + ex) / 2] = null;
 		area[ey, ex] = c;
 		return area;
@@ -61,7 +62,7 @@ public class CheckerControll : MonoBehaviour
 		ty = Mathf.RoundToInt(pos.y); tx = Mathf.RoundToInt(pos.x);
 
 		c.isAbleMove = true;
-		if (ty <= 7 && tx <= 7 && (c.isWhite || c.isQueen))
+		if (ty <= 7 && tx <= 7 && (((ty - c.positionY > 0) == c.isWhite) || c.isQueen))
 		{
 			if (area[ty, tx] == null) return true;
 		}
@@ -74,25 +75,25 @@ public class CheckerControll : MonoBehaviour
 		int tx, ty;
 		c.isAbleMove = true;
 		ty = c.positionY + 1; tx = c.positionX + 1;
-		if (ty <= 7 && tx <= 7 && (c.isWhite || c.isQueen))
+		if (ty <= 7 && tx <= 7 && (((ty - c.positionY > 0) == c.isWhite) || c.isQueen))
 		{
 			if (area[ty, tx] == null) return true;
 		}
 
 		ty = c.positionY - 1; tx = c.positionX + 1;
-		if (ty >= 0 && tx <= 7 && (!c.isWhite || c.isQueen))
+		if (ty >= 0 && tx <= 7 && (((ty - c.positionY > 0) == c.isWhite) || c.isQueen))
 		{
 			if (area[ty, tx] == null) return true;
 		}
 
 		ty = c.positionY - 1; tx = c.positionX - 1;
-		if (ty >= 0 && tx >= 0 && (!c.isWhite || c.isQueen))
+		if (ty >= 0 && tx >= 0 && (((ty - c.positionY > 0) == c.isWhite) || c.isQueen))
 		{
 			if (area[ty, tx] == null) return true;
 		}
 
 		ty = c.positionY + 1; tx = c.positionX - 1;
-		if (ty <= 7 && tx >= 0 && (c.isWhite || c.isQueen))
+		if (ty <= 7 && tx >= 0 && (((ty - c.positionY > 0) == c.isWhite) || c.isQueen))
 		{
 			if (area[ty, tx] == null) return true;
 		}
@@ -107,9 +108,12 @@ public class CheckerControll : MonoBehaviour
 		ty = Mathf.RoundToInt(pos.y); tx = Mathf.RoundToInt(pos.x);
 		sy = (ty + c.positionY) / 2; sx = (ty + c.positionY) / 2;
 		if (Mathf.Abs(c.positionY - ty) != 2 || Mathf.Abs(c.positionX - tx) != 2) return false;
+		Debug.Log(c.positionX + " " + c.positionY + " : " + tx + " " + ty + " : " + ((ty - c.positionY > 0) == c.isWhite));
 
-		if (ty >= 0 && ty <= 7 && tx >= 0 && tx <= 7 && ((c.positionY - sy < 0) == c.isWhite || c.isQueen))
+		Debug.Log((ty >= 0) + " " + (ty <= 7) + " : " + (tx >= 0) + " " + (tx <= 7));
+		if (ty >= 0 && ty <= 7 && tx >= 0 && tx <= 7 && (((ty - c.positionY > 0) == c.isWhite) || c.isQueen))
 		{
+			Debug.Log($"{area[ty, tx] == null} + {area[sy, sx] != null} + {area[sy, sx].isWhite != c.isWhite}");
 			if (area[ty, tx] == null && area[sy, sx] != null && area[sy, sx].isWhite != c.isWhite) return true;
 		}
 		return false;

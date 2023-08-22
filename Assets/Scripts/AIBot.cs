@@ -30,165 +30,170 @@ public class AIBot : MonoBehaviour
 		}
 	}
 
-	// RENAME FUNC
-	public void FuncA()
+	public void CalculateBestMove()
 	{
-		foreach(Checker c in owerCheckers)
-		{
-			FuncC(c, baseCheckPos);
-		}
+		Movement[] moves = GetMoves(baseCheckPos);
 	}
 
-	// RENAME FUNC
-	public bool FuncB(Checker c, Vector3 pos, Checker[,] area, Movement move = null)
+	public static Movement[] GetMoves(Checker[,] area, int color = 0)
 	{
-		Checker[,] newArea;
-		bool isHaveAttack = false;
-		if (CheckerControll.AbleKick(c, pos, area))
-		{
-			newArea = CheckerControll.Kick(c, pos, (Checker[,])area.Clone());
-			Movement newMove = new Movement(newArea, move != null ? move.value + 2 : 2, true, move);
-			Checker nc = newArea[Mathf.RoundToInt(pos.y), Mathf.RoundToInt(pos.x)];
-			isHaveAttack = true;
-			FuncC(nc, newArea, newMove);
-		}
-		else
-		{
-			moveList.Add(move);
-		}
-		return isHaveAttack;
-	}
+		List<Movement> moves = new List<Movement>();
 
-	// RENAME FUNC
-	public bool FuncC(Checker c, Checker[,] area, Movement move = null)
-	{
-		Checker[,] newArea;
-		Vector3 pos;
+		List<Checker> owerCheck = new List<Checker>(), enemyCheck = new List<Checker>();
+		for(int i = 0; i < 8; i++)
+		{
+			for(int j = 0; j < 8; j++)
+			{
+				if(area[i, j] != null)
+				{
+					if (area[i, j].isWhite == (color == 1)) owerCheck.Add(area[i, j]);
+					else enemyCheck.Add(area[i, j]);
+				}
+			}
+		}
 		bool haveAttack = false;
-		pos = new Vector3(c.positionX + 2, c.positionY + 2);
-		if (FuncB(c, pos, area, move)) haveAttack = true;
+		foreach (Checker c in owerCheck)
+		{
+			moves.AddRange(GetMove(c, area, ref haveAttack));
+		}
+		if(haveAttack)
+		{
+			List<Movement> newList = new List<Movement>();
+			foreach(Movement m in moves)
+			{
+				if (m.value == 1) newList.Add(m);
+			}
+			moves = newList;
+		}
 
-		pos = new Vector3(c.positionX - 2, c.positionY + 2);
-		if (FuncB(c, pos, area, move)) haveAttack = true;
-
-		pos = new Vector3(c.positionX + 2, c.positionY - 2);
-		if (FuncB(c, pos, area, move)) haveAttack = true;
-
-		pos = new Vector3(c.positionX - 2, c.positionY - 2);
-		if (FuncB(c, pos, area, move)) haveAttack = true;
-
-		return haveAttack;
+		return moves.ToArray();
 	}
 
 
-	//public void SetAttackMovementToChecker(Checker checker)
-	//{
-	//	int tx, ty;
-	//	bool haveAttack = false;
-	//	tx = checker.positionX - 2; ty = checker.positionY + (color == 1 ? 2 : -2);
-	//	if (checker.checkerControll.AbleKick(tx, ty, baseCheckPos))
-	//	{
-	//		moveList.Add(CreateMovement(checker.positionX, checker.positionY, tx, ty, 1, null, true));
-	//		haveAttack = true;
-	//	}
 
-	//	tx = checker.positionX + 2; ty = checker.positionY + (color == 1 ? 2 : -2);
-	//	if (checker.checkerControll.AbleKick(tx, ty, baseCheckPos))
-	//	{
-	//		moveList.Add(CreateMovement(checker.positionX, checker.positionY, tx, ty, 1, null, true));
-	//		haveAttack = true;
-	//	}
-	//	if(!haveAttack)
-	//	{
-	//		SetMoveMovementToChecker(checker);
-	//	}
-	//}
-	//public void SetMoveMovementToChecker(Checker checker)
-	//{
-	//	int tx, ty;
-	//	tx = checker.positionX - 2; ty = checker.positionY + (color == 1 ? 2 : -2);
+	public static List<Movement> GetMove(Checker check, Checker[,] area, ref bool haveAttack)
+	{
+		List<Movement> moves = new List<Movement>();
+		Vector3Int pos = new Vector3Int(check.positionX + 2, check.positionY + 2);
+		if(CheckerControll.AbleKick(check, pos, area))
+		{
+			Movement m = new Movement(CheckerControll.Kick(check, pos, (Checker[,])area.Clone()), 1, true);
+			m.simpleMoves.Add(new SimpleMove(check.positionX, check.positionY, pos.x, pos.y));
+			haveAttack = true;
+			moves.Add(m);
+		}
 
-	//	tx = checker.positionX - 1; ty = checker.positionY + (color == 1 ? 1 : -1);
-	//	if (checker.checkerControll.AbleMove(tx, ty, baseCheckPos)) moveList.Add(CreateMovement(checker.positionX, checker.positionY, tx, ty, 0, null, true));
+		pos = new Vector3Int(check.positionX + 2, check.positionY - 2);
+		if (CheckerControll.AbleKick(check, pos, area))
+		{
+			Movement m = new Movement(CheckerControll.Kick(check, pos, (Checker[,])area.Clone()), 1, true);
+			m.simpleMoves.Add(new SimpleMove(check.positionX, check.positionY, pos.x, pos.y));
+			haveAttack = true;
+			moves.Add(m);
+		}
 
-	//	tx = checker.positionX + 1; ty = checker.positionY + (color == 1 ? 1 : -1);
-	//	if (checker.checkerControll.AbleMove(tx, ty, baseCheckPos)) moveList.Add(CreateMovement(checker.positionX, checker.positionY, tx, ty, 0, null, true));
-	//}
-	//public Movement CreateAttackMovement(int sx, int sy, int ex, int ey, int v, Movement nm, bool os)
-	//{
-	//	Movement move = new Movement(sx, sy, ex, ey, v, nm, os);
-	//	Checker[,] newArea = (Checker[,])baseCheckPos.Clone();
-	//	Checker c = newArea[sy, sx];
-	//	newArea[sy, sx] = null;
-	//	newArea[ey, ex] = c;
-	//	//newArea[(sy + ey) / 2, (sx + ex) / 2].isWhite == (color == 1) ? 
-	//	//newArea[(sy + ey) / 2, (sx + ex) / 2] = null;
+		pos = new Vector3Int(check.positionX - 2, check.positionY - 2);
+		if (CheckerControll.AbleKick(check, pos, area))
+		{
+			Movement m = new Movement(CheckerControll.Kick(check, pos, (Checker[,])area.Clone()), 1, true);
+			m.simpleMoves.Add(new SimpleMove(check.positionX, check.positionY, pos.x, pos.y));
+			haveAttack = true;
+			moves.Add(m);
+		}
 
-	//	return move;
-	//}
-	//public Movement CreateMovement(int sx, int sy, int ex, int ey, int v, Movement nm, bool os)
-	//{
-	//	Movement move = new Movement(sx, sy, ex, ey, v, nm, os);
-
-
-	//	return move;
-	//}
-	//public void SetMoveList()
-	//{
-	//	List<Checker> checkList = color == 1 ? table.whiteCheckers : table.blackCheckers;
-
-	//	foreach(Checker c in checkList)
-	//	{
-	//		int tx, ty;
-	//		tx = c.positionX - 2; ty = c.positionY + (color == 1 ? 2 : -2);
-	//		if (c.checkerControll.AbleKick(tx, ty, baseCheckPos)) moveList.Add(new Movement(c.positionX, c.positionY, tx, ty, 1, null, true));
-
-	//		tx = c.positionX + 2; ty = c.positionY + (color == 1 ? 2 : -2);
-	//		if (c.checkerControll.AbleKick(tx, ty, baseCheckPos)) moveList.Add(new Movement(c.positionX, c.positionY, tx, ty, 1, null, true));
-
-	//		tx = c.positionX - 1; ty = c.positionY + (color == 1 ? 1 : -1);
-	//		if (c.checkerControll.AbleMove(tx, ty, baseCheckPos)) moveList.Add(new Movement(c.positionX, c.positionY, tx, ty, 0, null, true));
-
-	//		tx = c.positionX + 1; ty = c.positionY + (color == 1 ? 1 : -1);
-	//		if (c.checkerControll.AbleMove(tx, ty, baseCheckPos)) moveList.Add(new Movement(c.positionX, c.positionY, tx, ty, 0, null, true));
-	//	}
+		pos = new Vector3Int(check.positionX - 2, check.positionY + 2);
+		if (CheckerControll.AbleKick(check, pos, area))
+		{
+			Movement m = new Movement(CheckerControll.Kick(check, pos, (Checker[,])area.Clone()), 1, true);
+			m.simpleMoves.Add(new SimpleMove(check.positionX, check.positionY, pos.x, pos.y));
+			haveAttack = true;
+			moves.Add(m);
+		}
 		
-	//}
-	//public Checker[,] PredictMovement(Movement move)
-	//{
-	//	Checker[,] predCheckPos = (Checker[,])baseCheckPos.Clone();
-	//	if(move.value == 0)
-	//	{
-	//		Checker c = predCheckPos[move.startY, move.startX];
-	//		predCheckPos[move.startY, move.startX] = null;
-	//		c.positionX = move.endX; c.positionY = move.endY;
-	//		predCheckPos[move.endY, move.endX] = c;
-	//	}
-	//	if(move.value == 2)
-	//	{
-	//		Checker c = predCheckPos[move.startY, move.startX];
-	//		predCheckPos[move.startY, move.startX] = null;
-	//		predCheckPos[(move.startY + move.endY) / 2, (move.startX + move.endX) / 2] = null;
-	//		c.positionX = move.endX; c.positionY = move.endY;
-	//		predCheckPos[move.endY, move.endX] = c;
-	//	}
-	//	return predCheckPos;
-	//}
+		if(!haveAttack)
+		{
+			pos = new Vector3Int(check.positionX + 1, check.positionY + 1);
+			if (CheckerControll.AbleMove(check, pos, area))
+			{
+				Movement m = new Movement(CheckerControll.Kick(check, pos, (Checker[,])area.Clone()), 0, true);
+				m.simpleMoves.Add(new SimpleMove(check.positionX, check.positionY, pos.x, pos.y));
+				moves.Add(m);
+			}
+			pos = new Vector3Int(check.positionX + 1, check.positionY - 1);
+			if (CheckerControll.AbleMove(check, pos, area))
+			{
+				Movement m = new Movement(CheckerControll.Kick(check, pos, (Checker[,])area.Clone()), 0, true);
+				m.simpleMoves.Add(new SimpleMove(check.positionX, check.positionY, pos.x, pos.y));
+				moves.Add(m);
+			}
+			pos = new Vector3Int(check.positionX - 1, check.positionY - 1);
+			if (CheckerControll.AbleMove(check, pos, area))
+			{
+				Movement m = new Movement(CheckerControll.Kick(check, pos, (Checker[,])area.Clone()), 0, true);
+				m.simpleMoves.Add(new SimpleMove(check.positionX, check.positionY, pos.x, pos.y));
+				moves.Add(m);
+			}
+			pos = new Vector3Int(check.positionX - 1, check.positionY + 1);
+			if (CheckerControll.AbleMove(check, pos, area))
+			{
+				Movement m = new Movement(CheckerControll.Kick(check, pos, (Checker[,])area.Clone()), 0, true);
+				m.simpleMoves.Add(new SimpleMove(check.positionX, check.positionY, pos.x, pos.y));
+				moves.Add(m);
+			}
+		}
+		return moves;
+	}
+	private void ContinueAttack(Movement move)
+	{
+
+	}
+
+	private void SearchTailCount(List<Movement> list, ref int resalt)
+	{
+		if (list.Count == 0) resalt++;
+		foreach(Movement m in list)
+		{
+		}
+		
+	}
 
 }
 
+public struct SimpleMove
+{
+	int startX, startY;
+	int endX, endY;
+	int destroyX, destroyY;
+	public SimpleMove(int sx, int sy, int ex, int ey)
+	{
+		startX = sx;
+		startY = sy;
+		endX = ex;
+		endY = ey;
+		if(startX - endX == 2 && startY - endY == 2)
+		{
+			destroyX = (startX + endX) / 2;
+			destroyY = (startY + endY) / 2;
+		}
+		else
+		{
+			destroyX = -1;
+			destroyY = -1;
+		}
+	}
+}
 public class Movement
 {
 	public Checker[,] area;
 	public int value;
-	public Movement nextMove;
+	public List<SimpleMove> simpleMoves;
 	public bool owerStep;
 
-	public Movement(Checker[,] a, int v, bool os, Movement nm = null)
+	public Movement(Checker[,] a, int v, bool os)
 	{
 		area = a;
 		value = v;
 		owerStep = os;
-		nextMove = nm;
+		simpleMoves = new List<SimpleMove>();
 	}
 }
