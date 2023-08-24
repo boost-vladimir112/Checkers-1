@@ -5,10 +5,11 @@ using UnityEngine;
 public class Table : MonoBehaviour
 {
 	public Board board;
+	public List<Checker> allCheckers;
 
 	private void Start()
 	{
-
+		board = new Board(allCheckers);
 	}
 	private void OnDrawGizmosSelected()
 	{
@@ -30,6 +31,15 @@ public class Board
 	public bool isWhiteMove;
 	public List<Checker> whiteCheckers = new List<Checker>(), blackCheckers = new List<Checker>();
 
+	public Board(List<Checker> allCheckers)
+	{
+		foreach(Checker c in allCheckers)
+		{
+			if (c.isWhite) whiteCheckers.Add(c);
+			else blackCheckers.Add(c);
+			_board[c.position.y, c.position.x] = c;
+		}
+	}
 	public Board(Board b)
 	{
 		_board = b.GetCheckersBoard();
@@ -121,6 +131,11 @@ public class Board
 		int tx, ty;
 		ty = pos.y; tx = pos.x;
 
+		if(Mathf.Abs(ty - c.position.y) != 1 && Mathf.Abs(tx - c.position.x) != 1)
+		{
+			c.isAbleMove = false;
+			return false;
+		}
 		c.isAbleMove = true;
 		if (b.InField(pos) && (((ty - c.position.y > 0) == c.isWhite) || c.isQueen))
 		{
@@ -152,12 +167,13 @@ public class Board
 	{
 		c.isNeedAttack = true;
 		c.isAbleMove = true;
-		Vector3Int middle = pos + c.position / 2;
+		Vector3Int middle = (pos + c.position) / 2;
+
 		if (Mathf.Abs(c.position.y - pos.y) != 2 || Mathf.Abs(c.position.x - pos.x) != 2) return false;
 
 		if (b.InField(pos) && (((pos.y - c.position.y > 0) == c.isWhite) || c.isQueen))
 		{
-			if (b.IsEmpty(pos) && !b.IsEmpty(middle) && b[pos.y, pos.x].isWhite != c.isWhite) return true;
+			if (b.IsEmpty(pos) && !b.IsEmpty(middle) && b[middle.y, middle.x].isWhite != c.isWhite) return true;
 		}
 		return false;
 	}

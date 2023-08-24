@@ -43,7 +43,7 @@ public class UGameManager : MonoBehaviour
 					if (Board.AbleKick(currentChecker, pos, table.board))
 					{
 						Debug.Log("Kick " + pos);
-						Board.Kick(currentChecker, pos, table.board);
+						Board.Kick(currentChecker, pos, table.board, true);
 						table.board.whiteCheckers.Clear();
 						table.board.blackCheckers.Clear();
 						table.board.SetCheckers();
@@ -119,7 +119,7 @@ public class UGameManager : MonoBehaviour
 	}
 	public void ChooseCurrent(Vector3Int pos)
 	{
-		if(table.board.IsEmpty(pos) && table.board[pos.y, pos.x].isWhite == (step % 2 == 1) && table.board[pos.y, pos.x].isNeedAttack == needToKick)
+		if(!table.board.IsEmpty(pos) && table.board[pos.y, pos.x].isWhite == (step % 2 == 1) && table.board[pos.y, pos.x].isNeedAttack == needToKick)
 		{
 			currentChecker = table.board[pos.y, pos.x];
 
