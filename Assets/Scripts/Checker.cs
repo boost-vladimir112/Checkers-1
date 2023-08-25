@@ -2,22 +2,34 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Checker : MonoBehaviour
+public class Checker
 {
 	public Vector3Int position;
-	public GameObject crown;
-	public List<Checker> owerList;
 	public bool isWhite, isQueen, isNeedAttack, isAbleMove;
 	public CheckerControll checkerControll;
-	private void Start()
-	{
-		transform.position = checkerControll.table.transform.position + position;
-		SetQueen(false);
 
+	public delegate void VoidFunc(Checker c, bool queen);
+	public event VoidFunc ChangeQueen;
+
+	public Checker(Vector3Int pos, bool isW, bool isQ)
+	{
+		position = pos;
+		isWhite = isW;
+		isQueen = isQ;
+		isNeedAttack = false;
+		isAbleMove = false;
+	}
+	public Checker(Checker c)
+	{
+		this.position	= c.position;
+		this.isWhite	= c.isWhite;
+		this.isQueen	= c.isQueen;
+		this.isNeedAttack = c.isNeedAttack;
+		this.isAbleMove = c.isAbleMove;
 	}
 	public void SetQueen(bool queen)
 	{
 		isQueen = queen;
-		crown.SetActive(isQueen);
+		ChangeQueen?.Invoke(this, queen);
 	}
 }

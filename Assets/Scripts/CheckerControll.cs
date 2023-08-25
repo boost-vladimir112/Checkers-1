@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Checker))]
 public class CheckerControll : MonoBehaviour
 {
 	public Table table;
-	Checker checker;
+	public Checker checker;
 	public Board board;
+	public GameObject crown;
 
 	private void Start()
 	{
-		checker = GetComponent<Checker>();
+		transform.position = table.transform.position + checker.position;
 	}
 	public void SetPosition()
 	{
@@ -21,4 +21,5 @@ public class CheckerControll : MonoBehaviour
 	{
 		Destroy(gameObject);
 	}
+
 }

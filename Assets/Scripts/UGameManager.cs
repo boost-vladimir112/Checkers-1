@@ -4,32 +4,59 @@ using UnityEngine;
 
 public class UGameManager : MonoBehaviour
 {
+	public MenuManager menu;
 	public GameObject currentCircle;
 	public Checker currentChecker;
 	public Table table;
-	public int step = 1;
-	public bool needToKick;
-	public AIBot aiBot;
+	public int score = 0, step = 1;
+	public bool needToKick, isEnd = false, isPause = true;
+	public Player player1, player2;
+
 
 	public delegate void VoidFunc();
 	public event VoidFunc WinWhite, WinBlack;
 	private void Start()
 	{
-		WinWhite += () => { Debug.Log("White Win!!"); };
-		WinBlack += () => { Debug.Log("Black Win!!"); };
+		score = PlayerPrefs.GetInt("playerScore");
+		WinWhite += () => 
+		{ 
+			Debug.Log("White Win!!"); 
+			if(player2 != null)
+			{
+				score += player2.playerHard * 10;
+				menu.scoreText.text = score.ToString();
+				PlayerPrefs.SetInt("playerScore", score);
+			}
+			isEnd = true;
+			isPause = true;
+			table.Clear();
+			table.board = new Board();
+			menu.back.SetActive(true);
+		};
+		WinBlack += () =>
+		{
+			Debug.Log("Black Win!!");
+			isEnd = true;
+			isPause = true;
+			table.Clear();
+			table.board = new Board();
+			menu.back.SetActive(true);
+		};
+
 	}
 
 	private void Update()
 	{
-		if(Input.GetMouseButtonDown(0))
+		if(!isEnd && !isPause && Input.GetMouseButtonDown(0) && player1 == null)
 		{
 			Vector3Int pos = GetVector3Int(GetMouseWorldPosition(table.transform.position));
+			Debug.Log(pos);
 			if (currentChecker != null)
 			{
 				if (!needToKick && Board.AbleMove(currentChecker, pos, table.board))
 				{
 					Board.Move(currentChecker, pos, table.board);
-					currentChecker.transform.position = currentChecker.position + table.transform.position;
+					currentChecker.checkerControll.transform.position = currentChecker.position + table.transform.position;
 
 					currentCircle.SetActive(false);
 					currentChecker = null;
@@ -38,26 +65,22 @@ public class UGameManager : MonoBehaviour
 				}
 				else if(needToKick)
 				{
-					Debug.Log("We need to Kick " + pos);
 
 					if (Board.AbleKick(currentChecker, pos, table.board))
 					{
-						Debug.Log("Kick " + pos);
 						Board.Kick(currentChecker, pos, table.board, true);
-						table.board.whiteCheckers.Clear();
-						table.board.blackCheckers.Clear();
+
 						table.board.SetCheckers();
-						currentChecker.transform.position = new Vector3(currentChecker.position.x, currentChecker.position.y) + table.transform.position;
+						currentChecker.checkerControll.transform.position = new Vector3(currentChecker.position.x, currentChecker.position.y) + table.transform.position;
 						needToKick = false;
 						if(Board.AbleKick(currentChecker, table.board))
 						{
 							needToKick = true;
 						}
 
-						if (needToKick) Debug.Log("We also need to Kick");
 						if (needToKick)
 						{
-							currentCircle.transform.position = currentChecker.transform.position;
+							currentCircle.transform.position = currentChecker.checkerControll.transform.position;
 						}
 						else
 						{
@@ -81,6 +104,14 @@ public class UGameManager : MonoBehaviour
 				ChooseCurrent(pos);
 			}
 		}
+		else if(Input.GetMouseButtonDown(0) && player1 == null)
+		{
+
+		}
+		else if(Input.GetMouseButtonDown(0) && player1 != null)
+		{
+			NextStep();
+		}
 	}
 
 	public void NextStep()
@@ -94,7 +125,9 @@ public class UGameManager : MonoBehaviour
 		{
 			if (step % 2 == 1) WinBlack?.Invoke();
 			else WinWhite?.Invoke();
+			return;
 		}
+		needToKick = false;
 		bool isAbleMove = false;
 		foreach (Checker c in list)
 		{
@@ -102,20 +135,29 @@ public class UGameManager : MonoBehaviour
 			{
 				isAbleMove = true;
 				needToKick = true;
-				Debug.Log(c.name + " need kick");
 			}
 			if (!isAbleMove && Board.AbleMove(c, table.board))
 			{
 				isAbleMove = true;
 			}
 		}
-		if(!isAbleMove)
+		if (!isAbleMove)
 		{
 			if (step % 2 == 1) WinBlack?.Invoke();
 			else WinWhite?.Invoke();
+			return;
 		}
 
-		//Debug.Log(AIBot.GetMoves(table.squareArray, step % 2).Length);
+		if (step % 2 == 1 && player1 != null)
+		{
+			Board.RealiseMove(Board.MiniMax(table.board, player1.playerHard * 2, false).Item2, table.board, true);
+			NextStep();
+		}
+		if (step % 2 == 0 && player2 != null)
+		{
+			Board.RealiseMove(Board.MiniMax(table.board, player2.playerHard * 2, false).Item2, table.board, true);
+			NextStep();
+		}
 	}
 	public void ChooseCurrent(Vector3Int pos)
 	{
@@ -124,7 +166,7 @@ public class UGameManager : MonoBehaviour
 			currentChecker = table.board[pos.y, pos.x];
 
 			currentCircle.SetActive(true);
-			currentCircle.transform.position = currentChecker.transform.position;
+			currentCircle.transform.position = currentChecker.checkerControll.transform.position;
 		}
 	}
 	public static Vector3 GetMouseWorldPosition() => GetMouseWorldPosition(Vector3.zero, Input.mousePosition, Camera.main);
