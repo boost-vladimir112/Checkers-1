@@ -230,7 +230,7 @@ public class Board
 		c.position.x = ex; c.position.y = ey;
 		if(visual)
 		{
-			c.checkerControll.SetPosition();
+			//c.checkerControll.SetPosition();
 			b[(sy + ey) / 2, (sx + ex) / 2].checkerControll.DestroyMe();
 		}
 		b[(sy + ey) / 2, (sx + ex) / 2] = null;
@@ -248,7 +248,7 @@ public class Board
 			c.position = move.pos[i + 1];
 			if(visual)
 			{
-				c.checkerControll.SetPosition();
+				//c.checkerControll.SetPosition();
 				if (move.taken.Count > 0) b[move.taken[i].y, move.taken[i].x].checkerControll.DestroyMe();
 			}
 			if (move.taken.Count > 0)

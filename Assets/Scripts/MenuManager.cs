@@ -6,13 +6,14 @@ using UnityEngine.UI;
 public class MenuManager : MonoBehaviour
 {
     public Player lv1, lv2, lv3, lv4;
-	public Button butt1, butt2, butt3, buttPvP, buttEvE, buttQuit;
+	public Button butt1, butt2, butt3, buttPvP, buttEvE, buttQuit, buttMenu;
 	public GameObject back;
 	public Text scoreText;
     public UGameManager gameManager;
 
 	private void Start()
 	{
+		scoreText.text = PlayerPrefs.GetInt("playerScore").ToString();
 		butt1.onClick.AddListener(() => 
 		{
 			gameManager.player1 = null;
@@ -66,6 +67,11 @@ public class MenuManager : MonoBehaviour
 		buttQuit.onClick.AddListener(() =>
 		{
 			Application.Quit();
+		});
+		buttMenu.onClick.AddListener(() =>
+		{
+			gameManager.Restart();
+			back.SetActive(true);
 		});
 	}
 }
