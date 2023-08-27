@@ -89,6 +89,7 @@ public class UGameManager : MonoBehaviour
 			else
 			{
 				botVisualChecker.checkerControll.transform.position = botTarget;
+				audioSrc.Play();
 				botVisualChecker = null;
 				isMovePause = false;
 				NextStep();
@@ -122,13 +123,12 @@ public class UGameManager : MonoBehaviour
 
 	}
 
-	public async void NextStep()
+	public void NextStep()
 	{
 		step++;
 		table.board.isWhiteMove = (step % 2 == 1);
 		Debug.Log("Step: " + step);
 		List<Checker> list = (step % 2 == 1) ? table.board.whiteCheckers : table.board.blackCheckers;
-
 		if (list.Count == 0)
 		{
 			if (step % 2 == 1) WinBlack?.Invoke();
@@ -165,10 +165,10 @@ public class UGameManager : MonoBehaviour
 		//bot2 move
 		if (step % 2 == 0 && botBlack != null)
 		{
-			await botThinkMoveAsync(botBlack);
+			botThinkMoveAsync(botBlack);
 		}
 	}
-	public async Task botThinkMoveAsync(Bot bot)
+	public void botThinkMoveAsync(Bot bot)
 	{
 		botVisualMove = Board.MiniMax(table.board, bot.botHard * 2, bot == botWhite).Item2;
 		botVisualChecker = table.board[botVisualMove.pos[0].y, botVisualMove.pos[0].x];
@@ -197,8 +197,8 @@ public class UGameManager : MonoBehaviour
 			}
 			else if (needToKick)
 			{
-
-				if (Board.AbleKick(currentChecker, pos, table.board))
+				(bool, Vector3Int) kiskStatus = Board.AbleKick(currentChecker, pos, table.board);
+				if (kiskStatus.Item1)
 				{
 					startPos = currentChecker.position;
 					Board.Kick(currentChecker, pos, table.board, true);
@@ -239,7 +239,10 @@ public class UGameManager : MonoBehaviour
 	public bool ChooseCurrent(Vector3Int pos)
 	{
 		if (pos.x > 7 || pos.x < 0 || pos.y > 7 || pos.y < 0) return false;
-		if(!table.board.IsEmpty(pos) && table.board[pos.y, pos.x].isWhite == (step % 2 == 1) && table.board[pos.y, pos.x].isNeedAttack == needToKick)
+		if (table.board == null) return false;
+		Debug.Log(table);
+		Debug.Log(table.board);
+		if (!table.board.IsEmpty(pos) && table.board[pos.y, pos.x].isWhite == (step % 2 == 1) && table.board[pos.y, pos.x].isNeedAttack == needToKick)
 		{
 			currentChecker = table.board[pos.y, pos.x];
 

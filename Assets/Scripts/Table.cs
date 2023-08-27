@@ -72,6 +72,8 @@ public class Board
 
 	public Board()
 	{
+		whiteCheckers = new List<Checker>();
+		blackCheckers = new List<Checker>();
 		for (int y = 0; y < 8; y++)
 		{
 			for (int x = y % 2; x < 8; x += 2)
@@ -88,12 +90,16 @@ public class Board
 				}
 			}
 		}
+		Debug.Log(whiteCheckers.Count);
+		Debug.Log(blackCheckers.Count);
 		isEndGame = false;
 		isWhiteMove = true;
 	}
 	public Board(List<Checker> allCheckers)
 	{
-		foreach(Checker c in allCheckers)
+		whiteCheckers = new List<Checker>(); 
+		blackCheckers = new List<Checker>();
+		foreach (Checker c in allCheckers)
 		{
 			if (c.isWhite) whiteCheckers.Add(c);
 			else blackCheckers.Add(c);
@@ -107,7 +113,9 @@ public class Board
 	}
 	public Board(Board b, Move move = null)
 	{
-		for(int y = 0; y < 8; y++)
+		whiteCheckers = new List<Checker>();
+		blackCheckers = new List<Checker>();
+		for (int y = 0; y < 8; y++)
 		{
 			for(int x = y % 2; x < 8; x+=2)
 			{
@@ -125,7 +133,8 @@ public class Board
 		{
 			for(int i = 0; i < move.pos.Count - 1; i++)
 			{
-				if(Board.AbleKick(_board[move.pos[i].y, move.pos[i].x], move.pos[i+1], this))
+				(bool, Vector3Int) kickStatus = Board.AbleKick(_board[move.pos[i].y, move.pos[i].x], move.pos[i + 1], this);
+				if(kickStatus.Item1)
 				{
 					Board.Kick(move.pos[i].y, move.pos[i].x, move.pos[i+1].x, move.pos[i+1].x, this);
 				}
@@ -226,18 +235,26 @@ public class Board
 	}
 	public static Board Kick(int sx, int sy, int ex, int ey, Board b, bool visual = false, bool newBoard = false)
 	{
+		Debug.Log("start Kick");
+		Debug.Log("start pos: " + new Vector3Int(sx, sy)  + " target pos: " + new Vector3Int(ex, ey));
 		Checker c = b[sy, sx];
+		Vector3Int takenChecker = Board.AbleKick(c, new Vector3Int(ex, ey), b).Item2;
+		Debug.Log("taken pos: " + takenChecker);
+
+		if (newBoard) b = new Board(b);
+
 		b[sy, sx] = null;
 		c.position.x = ex; c.position.y = ey;
 		if(visual)
 		{
 			//c.checkerControll.SetPosition();
-			b[(sy + ey) / 2, (sx + ex) / 2].checkerControll.DestroyMe();
+			b[takenChecker.y, takenChecker.x].checkerControll.DestroyMe();
 		}
-		b[(sy + ey) / 2, (sx + ex) / 2] = null;
+		b[takenChecker.y, takenChecker.x] = null;
 		b[ey, ex] = c;
 		if (c.isWhite && c.position.y == 7) c.SetQueen(true);
 		if (!c.isWhite && c.position.y == 0) c.SetQueen(true);
+		Debug.Log("end Kick");
 		return b;
 	}
 	public static Board RealiseMove(Move move, Board b, bool visual = false)
@@ -268,15 +285,32 @@ public class Board
 		int tx, ty;
 		ty = pos.y; tx = pos.x;
 		if (b.isEndGame) return false;
-		if(Mathf.Abs(ty - c.position.y) != 1 || Mathf.Abs(tx - c.position.x) != 1)
+		if(!b.InField(pos) || (Mathf.Abs(ty - c.position.y) != Mathf.Abs(tx - c.position.x)) || (!c.isQueen && Mathf.Abs(ty - c.position.y) > 1))
 		{
 			c.isAbleMove = false;
 			return false;
 		}
 		c.isAbleMove = true;
-		if (b.InField(pos) && (((ty - c.position.y > 0) == c.isWhite) || c.isQueen))
+		if (!c.isQueen && ((ty - c.position.y > 0) == c.isWhite))
 		{
 			if (b.IsEmpty(pos)) return true;
+		}
+		if(c.isQueen)
+		{
+			Vector3Int dictionary = new Vector3Int((pos.x - c.position.x) / Mathf.Abs(pos.x - c.position.x), (pos.y - c.position.y) / Mathf.Abs(pos.y - c.position.y));
+			Vector3Int pos_target = c.position + dictionary;
+
+			while (b.InField(pos_target) && pos_target - dictionary != pos)
+			{
+				if (!b.IsEmpty(pos_target))
+				{
+					c.isAbleMove = false;
+					return false;
+				}
+
+				pos_target += dictionary;
+			}
+			return true;
 		}
 
 		c.isAbleMove = false;
@@ -288,49 +322,171 @@ public class Board
 		if (b.isEndGame) return false;
 
 		c.isAbleMove = true;
-		for (ty = c.position.y - 1; ty < c.position.y + 2; ty += 2)
+		if(!c.isQueen)
 		{
-			for (tx = c.position.x - 1; tx < c.position.x + 2; tx += 2)
+			for (ty = - 1; ty < 2; ty += 2)
 			{
-				if (b.InField(tx, ty) && (((ty - c.position.y > 0) == c.isWhite) || c.isQueen))
+				for (tx = - 1; tx < 2; tx += 2)
 				{
-					if (b.IsEmpty(tx, ty)) return true;
+					Vector3Int dictionary = new Vector3Int(tx, ty);
+					Vector3Int pos_target = c.position + dictionary;
+
+					if (b.InField(pos_target) && b.IsEmpty(pos_target))
+					{
+						return true;
+					}
+					else if (b.InField(pos_target))
+					{
+						break;
+					}
+				}
+			}
+		}
+		if(c.isQueen)
+		{
+			for (ty = - 1; ty < 2; ty += 2)
+			{
+				for (tx = - 1; tx < 2; tx += 2)
+				{
+					Vector3Int dictionary = new Vector3Int(tx, ty);
+					Vector3Int pos_target = c.position + dictionary;
+
+					if (b.InField(pos_target) && b.IsEmpty(pos_target))
+					{
+						return true;
+					}
+					else if (b.InField(pos_target))
+					{
+						break;
+					}
 				}
 			}
 		}
 
+
 		c.isAbleMove = false;
 		return false;
 	}
-	public static bool AbleKick(Checker c, Vector3Int pos, Board b)
+	public static (bool, Vector3Int) AbleKick(Checker c, Vector3Int pos, Board b)
 	{
-		if (b.isEndGame) return false;
+		if (b.isEndGame || !b.InField(pos)) return (false, -Vector3Int.one);
 		c.isNeedAttack = true;
 		c.isAbleMove = true;
-		Vector3Int middle = (pos + c.position) / 2;
 
-		if (Mathf.Abs(c.position.y - pos.y) != 2 || Mathf.Abs(c.position.x - pos.x) != 2) return false;
+		if (Mathf.Abs(c.position.y - pos.y) != Mathf.Abs(c.position.x - pos.x)) return (false, -Vector3Int.one);
 
-		if (b.InField(pos) && (((pos.y - c.position.y > 0) == c.isWhite) || c.isQueen))
+		if (!c.isQueen)
 		{
-			if (b.IsEmpty(pos) && !b.IsEmpty(middle) && b[middle.y, middle.x].isWhite != c.isWhite) return true;
+			// Kick to simple Checker
+			if (Mathf.Abs(c.position.y - pos.y) != 2) return (false, -Vector3Int.one);
+			Debug.Log("Simple kickAble");
+
+			Vector3Int middle = (pos + c.position) / 2;
+			if (b.IsEmpty(pos) && !b.IsEmpty(middle) && b[middle.y, middle.x].isWhite != c.isWhite) return (true, middle);
 		}
-		return false;
+		if (c.isQueen)
+		{
+			// Kick to Queen Checker
+			Debug.Log(c.position + " is Queen " + c.isQueen);
+			Vector3Int direction = new Vector3Int((pos.x - c.position.x) / Mathf.Abs(pos.x - c.position.x), (pos.y - c.position.y) / Mathf.Abs(pos.y - c.position.y));
+			Vector3Int pos_target = c.position + direction;
+
+			bool opp_found = false, kick_onWay = false;
+			Vector3Int opp_pos = -Vector3Int.one;
+
+			while (pos_target - direction != pos)
+			{
+				if (b.IsEmpty(pos_target))
+				{
+					if (opp_found) // If we jumping to the target cell and also jump over the opponent's checker, then this is a capture
+						kick_onWay = true;
+				}
+				else if (b[pos_target.y, pos_target.x].isWhite == c.isWhite) // If we jump into our checker - that's all
+				{
+					c.isNeedAttack = false;
+					c.isAbleMove = false;
+					return (false, -Vector3Int.one);
+				}
+				else
+				{
+					if (!opp_found) // If pos_target have enemy checker then remember it
+					{
+						opp_found = true;
+						opp_pos = pos_target;
+					}
+					else // If we jump into second enemy checker - that's all
+					{
+						c.isNeedAttack = false;
+						c.isAbleMove = false;
+						return (false, -Vector3Int.one);
+					}
+				}
+				Debug.Log("Queen kickAble " + c.position + " -> " + pos_target + ": opp " + opp_found + " " + opp_pos);
+				pos_target += direction;
+			}
+			if (kick_onWay)
+				return (true, opp_pos);
+			else
+			{
+				c.isNeedAttack = false;
+				c.isAbleMove = false;
+				return (false, -Vector3Int.one);
+			}
+		}
+		c.isNeedAttack = false;
+		c.isAbleMove = false;
+		return (false, -Vector3Int.one);
 	}
 	public static bool AbleKick(Checker c, Board b)
 	{
 		if (b.isEndGame) return false;
-		int ex, ey, tx, ty;
 		c.isNeedAttack = true;
 		c.isAbleMove = true;
-		for (ty = c.position.y - 2; ty < c.position.y + 3; ty += 4)
+		if(!c.isQueen)
 		{
-			for (tx = c.position.x - 2; tx < c.position.x + 3; tx += 4)
+			int ex, ey, tx, ty;
+			for (ty = c.position.y - 2; ty < c.position.y + 3; ty += 4)
 			{
-				ey = (ty + c.position.y) / 2; ex = (tx + c.position.x) / 2;
-				if (b.InField(tx, ty) && ((ty - c.position.y > 0) == c.isWhite || c.isQueen))
+				for (tx = c.position.x - 2; tx < c.position.x + 3; tx += 4)
 				{
-					if (b.IsEmpty(tx, ty) && !b.IsEmpty(ex, ey) && b[ey, ex].isWhite != c.isWhite) return true;
+					ey = (ty + c.position.y) / 2; ex = (tx + c.position.x) / 2;
+					if (b.InField(tx, ty))
+					{
+						// Kick to simple Checker
+						if (b.IsEmpty(tx, ty) && !b.IsEmpty(ex, ey) && b[ey, ex].isWhite != c.isWhite) return true;
+					}
+				}
+			}
+		}
+		else
+		{
+			for(int ty = -1; ty < 2; ty+=2)
+			{
+				for(int tx = -1; tx < 2; tx+=2)
+				{
+					bool opp_found = false;
+
+					Vector3Int pos_target = c.position + new Vector3Int(tx, ty);
+					while(b.InField(pos_target))
+					{
+						if (b.IsEmpty(pos_target))
+						{
+							if (opp_found) // If we jumping to the target cell and also jump over the opponent's checker, then this is a capture
+								return true;
+						}
+						else if (b[pos_target.y, pos_target.x].isWhite == c.isWhite) // If we jump into our checker - that's all
+							break;
+						else
+						{
+							if (!opp_found) // If pos_target have enemy checker then remember it
+							{
+								opp_found = true;
+							}
+							else // If we jump into second enemy checker - that's all
+								break;
+						}
+						pos_target += new Vector3Int(tx, ty);
+					}
 				}
 			}
 		}
@@ -362,14 +518,23 @@ public class Board
 	public static List<Move> GetAbleMoves(Checker c, Board b)
 	{
 		List<Move> moves = new List<Move>();
-		for (int ty = c.position.y - 1; ty < c.position.y + 2; ty += 2)
+
+		for (int ty = -1; ty < 2; ty += 2)
 		{
-			for (int tx = c.position.x - 1; tx < c.position.x + 2; tx += 2)
+			for (int tx = -1; tx < 2; tx += 2)
 			{
-				if (Board.AbleMove(b[c], new Vector3Int(tx, ty), b))
+				Vector3Int pos_target = c.position + new Vector3Int(tx, ty);
+				while (b.InField(pos_target))
 				{
-					moves.Add(new Move(new List<Vector3Int> { c.position, new Vector3Int(tx, ty) }, new List<Vector3Int>()));
+					if (Board.AbleMove(b[c], pos_target, b))
+					{
+						moves.Add(new Move(new List<Vector3Int> { c.position, pos_target }, new List<Vector3Int>()));
+					}
+					else
+						break;
+					pos_target += new Vector3Int(tx, ty);
 				}
+
 			}
 		}
 		return moves;
@@ -377,25 +542,36 @@ public class Board
 	public static List<Move> GetAbleKick(Checker c, Board b, Move move = null)
 	{
 		List<Move> moves = new List<Move>();
-		for (int ty = c.position.y - 2; ty < c.position.y + 3; ty += 4)
+		for (int ty = -1; ty < 2; ty += 2)
 		{
-			for (int tx = c.position.x - 2; tx < c.position.x + 3; tx += 4)
+			for (int tx = -1; tx < 2; tx += 2)
 			{
-				if (Board.AbleKick(b[c], new Vector3Int(tx, ty), b))
+				(bool, Vector3Int) kick_status;
+
+				Vector3Int pos_target = c.position + new Vector3Int(tx, ty);
+				while (b.InField(pos_target))
 				{
-					Move addedMove = move;
-					if (addedMove == null) addedMove = new Move(new List<Vector3Int> { c.position, new Vector3Int(tx, ty) }, 
-																new List<Vector3Int> { new Vector3Int((tx + c.position.x) / 2, (ty + c.position.y) / 2) });
-					else
+					kick_status = Board.AbleKick(b[c], pos_target, b);
+					if (kick_status.Item1)
 					{
-						addedMove = new Move(move);
-						addedMove.pos.Add(new Vector3Int(tx, ty));
-						addedMove.taken.Add(new Vector3Int((tx + c.position.x) / 2, (ty + c.position.y) / 2));
+						Debug.Log(kick_status.Item1 + " " + c.position + " -> " + pos_target);
+						Move addedMove = move;
+						if (addedMove == null) addedMove = new Move(new List<Vector3Int> { c.position, pos_target },
+																	new List<Vector3Int> { kick_status.Item2 });
+						else
+						{
+							addedMove = new Move(move);
+							addedMove.pos.Add(pos_target);
+							addedMove.taken.Add(kick_status.Item2);
+						}
+						Debug.Log(addedMove);
+						Board movedBoard = new Board(b);
+						movedBoard = Board.Kick(movedBoard[c], pos_target, movedBoard);
+						moves.AddRange(GetAbleKick(movedBoard[addedMove.pos[^1].y, addedMove.pos[^1].x], movedBoard, addedMove));
 					}
-					Board moveBoard = new Board(b);
-					moveBoard = Board.Kick(moveBoard[c], new Vector3Int(tx, ty), moveBoard);
-					moves.AddRange(GetAbleKick(moveBoard[addedMove.pos[^1].y, addedMove.pos[^1].x], moveBoard, addedMove));
+					pos_target += new Vector3Int(tx, ty);
 				}
+
 			}
 		}
 		if (moves.Count == 0 && move != null) moves.Add(move);
@@ -442,26 +618,7 @@ public class Board
 		}
 		return eval;
 	}
-	public static void IterativeDeepeningMinimax(Board board, int minDepth, int maxDepth, ref Move bestMove, ref int depth, bool isWhiteMove)
-	{
 
-		for (depth = minDepth; depth <= maxDepth; depth++)
-		{
-			(float eval, Move tempBestMove) = Minimax(board, depth, isWhiteMove);
-			if (tempBestMove != null)
-			{
-				bestMove =  new Move(tempBestMove);
-			}
-			else
-			{
-				depth -= 1;
-				break;
-			}
-
-			if (eval >= 1000 && isWhiteMove || eval <= -1000 && !isWhiteMove)
-				break;
-		}
-	}
 	public static (float, Move) MiniMax(Board board, int depth, bool isMaximizing)
 	{
 		if (depth == 0) return (Evaluate(board), null);
@@ -510,66 +667,6 @@ public class Board
 				}
 			}
 			return (bestValue, bestMove);
-		}
-	}
-	public static (float, Move) Minimax(Board board, int depth, bool maximizingPlayer)
-	{
-		List<Move> allMoves = Board.GetAllAbleMoves(board, maximizingPlayer ? 1 : 0);
-
-		if (depth == 0)
-		{
-			float eval = Board.Evaluate(board);
-			return (eval, null);
-		}
-
-		// Если ход единственный -- см. комментарии под кодом
-		if (allMoves.Count == 1)
-		{
-			Board next_board = Board.RealiseMove(allMoves[0], board);
-
-			float eval = Minimax(next_board, depth, !maximizingPlayer).Item1;
-			return (eval, allMoves[0]);
-		}
-
-		// Ищем лучший ход (за белых)
-		Move bestMove = null;
-		if (maximizingPlayer)
-		{
-			float maxEval = -1000;
-			foreach (Move move in allMoves)
-			{
-				Board next_board = Board.RealiseMove(move, new Board(board));
-
-				(float eval, Move compMove) = Minimax(next_board, depth - 1, false);
-
-				if (compMove == null)
-					return (0, null);
-				if (eval > maxEval)
-				{
-					maxEval = eval;
-					bestMove = move;
-				}
-			}
-			return (maxEval, bestMove);
-		}
-		else
-		{
-			float minEval = 1000;
-			foreach (Move move in allMoves)
-			{
-				Board next_board = Board.RealiseMove(move, new Board(board));
-
-				(float eval, Move compMove) = Minimax(next_board, depth - 1, true);
-
-				if (compMove == null)
-					return (0, null);
-				if (eval < minEval)
-				{
-					minEval = eval;
-					bestMove = move;
-				}
-			}
-			return (minEval, bestMove);
 		}
 	}
 }
