@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad3bf1ece7651604183e1f9925055b3e, type: 3}
-  m_Name: Player3
+  m_Name: Bot4
   m_EditorClassIdentifier: 
-  playerHard: 3
+  botHard: 4

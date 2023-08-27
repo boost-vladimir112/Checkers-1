@@ -1,38 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class UGameManager : MonoBehaviour
 {
 	public MenuManager menu;
 	public GameObject currentCircle;
-	public Checker currentChecker, movingChecker;
+	public Checker currentChecker, playerMovingChecker;
 	public Table table;
 	public int score = 0, step = 1;
 	public bool needToKick, isEnd = false, isPause = true, isMovePause = false;
-	public Player player1, player2;
-	Vector3 target = Vector3.zero;
+	public Bot botWhite, botBlack;
+	Vector3 playerTarget = Vector3.zero, botTarget = Vector3.zero;
 	Vector3Int startPos = Vector3Int.zero;
 	Move botVisualMove = null;
 	int botStepMove = 0;
 	Checker botVisualChecker = null;
-	AudioSource audio;
+	AudioSource audioSrc;
 
 	public delegate void VoidFunc();
 	public event VoidFunc WinWhite, WinBlack;
 	private void Start()
 	{
-		audio = GetComponent<AudioSource>();
+		audioSrc = GetComponent<AudioSource>();
 		score = PlayerPrefs.GetInt("playerScore");
 		WinWhite += () => 
 		{ 
 			Debug.Log("White Win!!"); 
-			if(player2 != null)
+			if(botBlack != null)
 			{
-				score += player2.playerHard * 10;
+				score += botBlack.botHard * 10;
 				menu.scoreText.text = score.ToString();
 				PlayerPrefs.SetInt("playerScore", score);
 			}
+			menu.boxWinWhite.SetActive(true);
 			isEnd = true;
 
 		};
@@ -40,14 +42,14 @@ public class UGameManager : MonoBehaviour
 		{
 			Debug.Log("Black Win!!");
 			isEnd = true;
-
+			menu.boxWinBlack.SetActive(true);
 		};
-
 	}
 	public void Restart()
 	{
 		isEnd = true;
 		isPause = true;
+		needToKick = false;
 		table.Clear();
 		table.board = new Board();
 		menu.back.SetActive(true);
@@ -55,122 +57,72 @@ public class UGameManager : MonoBehaviour
 
 	private void Update()
 	{
-		if(!isEnd && !isPause && Input.GetMouseButtonDown(0) && player1 == null)
+
+		if(!isEnd && !isMovePause && Input.GetMouseButtonDown(0) && botWhite == null)
 		{
-			Vector3Int pos = GetVector3Int(GetMouseWorldPosition(table.transform.position));
-			if (currentChecker != null)
-			{
-				if (!needToKick && Board.AbleMove(currentChecker, pos, table.board))
-				{
-					Board.Move(currentChecker, pos, table.board);
-					target = pos + table.transform.position;
-					movingChecker = currentChecker;
-
-					currentCircle.SetActive(false);
-					currentChecker = null;
-					
-				}
-				else if(needToKick)
-				{
-
-					if (Board.AbleKick(currentChecker, pos, table.board))
-					{
-						startPos = currentChecker.position;
-						Board.Kick(currentChecker, pos, table.board, true);
-
-						target = pos + table.transform.position;
-
-						table.board.SetCheckers();
-
-						movingChecker = table.board[pos.y, pos.x];
-
-						needToKick = Board.AbleKick(currentChecker, table.board);
-						
-						if(!needToKick)
-						{
-							currentCircle.SetActive(false);
-							currentChecker = null;
-						}
-					}
-					else				
-					{
-						ChooseCurrent(pos);
-						target = currentChecker.checkerControll.transform.position;
-					}
-
-				}
-				else
-				{
-					ChooseCurrent(pos);
-					target = currentChecker.checkerControll.transform.position;
-				}
-			}
-			else
-			{
-				if(ChooseCurrent(pos))	target = currentChecker.checkerControll.transform.position;
-			}
+			PlayerMove();
 		}
-		else if (isEnd && Input.GetMouseButtonDown(0) && player1 == null)
+		else if (isEnd && Input.GetMouseButtonDown(0) && botWhite == null)
 		{
+			menu.boxWinWhite.SetActive(false);
+			menu.boxWinBlack.SetActive(false);
 			Restart();
-		}
-		else if (Input.GetMouseButtonDown(0) && player1 != null)
-		{
-			NextStep();
-		}
-
-		// player visual of checkers move
-		if (movingChecker != null && (Mathf.Abs((movingChecker.checkerControll.transform.position - target).magnitude) > 0.1f))
-		{
-			movingChecker.checkerControll.transform.position += (target - movingChecker.checkerControll.transform.position).normalized * 5 * Time.deltaTime;
-			if (needToKick)
-			{
-				currentCircle.transform.position = movingChecker.checkerControll.transform.position;
-			}
-		}
-		else if (movingChecker != null)
-		{
-			movingChecker.checkerControll.transform.position = target;
-			audio.Play();
-			if (needToKick)
-			{
-				currentCircle.transform.position = movingChecker.checkerControll.transform.position;
-			}
-			movingChecker = null;
-			if (!needToKick) NextStep();
 		}
 
 		// bot visual of checkers move
-		if(botVisualMove != null && botVisualChecker != null)
+		if (botVisualMove != null && botVisualChecker != null)
 		{
-			Debug.Log(botVisualMove);
-			Debug.Log(botVisualChecker.position);
-			Debug.Log("->" + target);
-			if ((Mathf.Abs((botVisualChecker.checkerControll.transform.position - target).magnitude) > 0.1f))
+			if ((Mathf.Abs((botVisualChecker.checkerControll.transform.position - botTarget).magnitude) > 0.1f))
 			{
-				botVisualChecker.checkerControll.transform.position += (target - botVisualChecker.checkerControll.transform.position).normalized * 5 * Time.deltaTime;
+				botVisualChecker.checkerControll.transform.position += (botTarget - botVisualChecker.checkerControll.transform.position).normalized * 5 * Time.deltaTime;
 				if (needToKick)
 				{
 					currentCircle.transform.position = botVisualChecker.checkerControll.transform.position;
 				}
 			}
-			else if(botStepMove < botVisualMove.pos.Count-1)
+			else if (botStepMove < botVisualMove.pos.Count - 1)
 			{
-				botVisualChecker.checkerControll.transform.position = target;
-				audio.Play();
-				target = botVisualMove.pos[++botStepMove] + table.transform.position;
+				botVisualChecker.checkerControll.transform.position = botTarget;
+				audioSrc.Play();
+				botTarget = botVisualMove.pos[++botStepMove] + table.transform.position;
 			}
 			else
 			{
-				botVisualChecker.checkerControll.transform.position = target;
+				botVisualChecker.checkerControll.transform.position = botTarget;
 				botVisualChecker = null;
-				//NextStep();
+				isMovePause = false;
+				NextStep();
+			}
+		}
+
+		// player visual of checkers move
+		if (playerMovingChecker != null && (Mathf.Abs((playerMovingChecker.checkerControll.transform.position - playerTarget).magnitude) > 0.1f))
+		{
+			playerMovingChecker.checkerControll.transform.position += (playerTarget - playerMovingChecker.checkerControll.transform.position).normalized * 5 * Time.deltaTime;
+			if (needToKick)
+			{
+				currentCircle.transform.position = playerMovingChecker.checkerControll.transform.position;
+			}
+		}
+		else if (playerMovingChecker != null)
+		{
+			playerMovingChecker.checkerControll.transform.position = playerTarget;
+			audioSrc.Play();
+			if (needToKick)
+			{
+				currentCircle.transform.position = playerMovingChecker.checkerControll.transform.position;
+			}
+			playerMovingChecker = null;
+			isMovePause = false;
+			if (!needToKick)
+			{
+				NextStep();
 			}
 		}
 
 	}
 
-	public void NextStep()
+	public async void NextStep()
 	{
 		step++;
 		table.board.isWhiteMove = (step % 2 == 1);
@@ -204,19 +156,84 @@ public class UGameManager : MonoBehaviour
 			return;
 		}
 
-		if (step % 2 == 1 && player1 != null)
+		// bot1 move
+		if (step % 2 == 1 && botWhite != null)
 		{
-			Board.RealiseMove(Board.MiniMax(table.board, player1.playerHard * 2, false).Item2, table.board, true);
+			Board.RealiseMove(Board.MiniMax(table.board, botWhite.botHard * 2, false).Item2, table.board, true);
 			NextStep();
 		}
-		if (step % 2 == 0 && player2 != null)
+		//bot2 move
+		if (step % 2 == 0 && botBlack != null)
 		{
-			botVisualMove = Board.MiniMax(table.board, player2.playerHard * 2, false).Item2;
-			botVisualChecker = table.board[botVisualMove.pos[0].y, botVisualMove.pos[0].x];
-			target = botVisualMove.pos[1] + table.transform.position;
-			botStepMove = 0;
-			Board.RealiseMove(botVisualMove, table.board, true);
-			NextStep();
+			await botThinkMoveAsync(botBlack);
+		}
+	}
+	public async Task botThinkMoveAsync(Bot bot)
+	{
+		botVisualMove = Board.MiniMax(table.board, bot.botHard * 2, bot == botWhite).Item2;
+		botVisualChecker = table.board[botVisualMove.pos[0].y, botVisualMove.pos[0].x];
+		botTarget = botVisualMove.pos[1] + table.transform.position;
+		isMovePause = true;
+		Debug.Log(botTarget);
+		botStepMove = 0;
+		Board.RealiseMove(botVisualMove, table.board, true);
+			
+		//NextStep();
+	}
+	public void PlayerMove()
+	{
+		Vector3Int pos = GetVector3Int(GetMouseWorldPosition(table.transform.position));
+		if (currentChecker != null)
+		{
+			if (!needToKick && Board.AbleMove(currentChecker, pos, table.board))
+			{
+				Board.Move(currentChecker, pos, table.board);
+				playerTarget = pos + table.transform.position;
+				playerMovingChecker = currentChecker;
+
+				currentCircle.SetActive(false);
+				currentChecker = null;
+
+			}
+			else if (needToKick)
+			{
+
+				if (Board.AbleKick(currentChecker, pos, table.board))
+				{
+					startPos = currentChecker.position;
+					Board.Kick(currentChecker, pos, table.board, true);
+
+					playerTarget = pos + table.transform.position;
+					isMovePause = true;
+
+					table.board.SetCheckers();
+
+					playerMovingChecker = table.board[pos.y, pos.x];
+
+					needToKick = Board.AbleKick(currentChecker, table.board);
+
+					if (!needToKick)
+					{
+						currentCircle.SetActive(false);
+						currentChecker = null;
+					}
+				}
+				else
+				{
+					ChooseCurrent(pos);
+					playerTarget = currentChecker.checkerControll.transform.position;
+				}
+
+			}
+			else
+			{
+				ChooseCurrent(pos);
+				playerTarget = currentChecker.checkerControll.transform.position;
+			}
+		}
+		else
+		{
+			ChooseCurrent(pos);
 		}
 	}
 	public bool ChooseCurrent(Vector3Int pos)

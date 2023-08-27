@@ -36,6 +36,7 @@ public class Table : MonoBehaviour
 	}
 	public void Clear()
 	{
+		if (board == null) return;
 		foreach (Checker c in board.whiteCheckers)
 		{
 			c.checkerControll.DestroyMe();

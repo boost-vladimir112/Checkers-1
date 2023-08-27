@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
-    public Player lv1, lv2, lv3, lv4;
+    public Bot lv1, lv2, lv3, lv4;
 	public Button butt1, butt2, butt3, buttPvP, buttEvE, buttQuit, buttMenu;
-	public GameObject back;
+	public GameObject back, boxWinWhite, boxWinBlack;
 	public Text scoreText;
     public UGameManager gameManager;
 
@@ -16,8 +16,8 @@ public class MenuManager : MonoBehaviour
 		scoreText.text = PlayerPrefs.GetInt("playerScore").ToString();
 		butt1.onClick.AddListener(() => 
 		{
-			gameManager.player1 = null;
-			gameManager.player2 = lv1;
+			gameManager.botWhite = null;
+			gameManager.botBlack = lv1;
 			gameManager.isPause = false;
 			gameManager.isEnd = false;
 			gameManager.table.CreatBoard();
@@ -26,8 +26,8 @@ public class MenuManager : MonoBehaviour
 		});
 		butt2.onClick.AddListener(() => 
 		{ 
-			gameManager.player1 = null;
-			gameManager.player2 = lv2; 
+			gameManager.botWhite = null;
+			gameManager.botBlack = lv2; 
 			gameManager.isPause = false;
 			gameManager.isEnd = false;
 			gameManager.table.CreatBoard();
@@ -36,8 +36,8 @@ public class MenuManager : MonoBehaviour
 		});
 		butt3.onClick.AddListener(() => 
 		{ 
-			gameManager.player1 = null;
-			gameManager.player2 = lv3; 
+			gameManager.botWhite = null;
+			gameManager.botBlack = lv3; 
 			gameManager.isPause = false;
 			gameManager.isEnd = false;
 			gameManager.table.CreatBoard();
@@ -46,8 +46,8 @@ public class MenuManager : MonoBehaviour
 		});
 		buttPvP.onClick.AddListener(() =>
 		{
-			gameManager.player1 = null;
-			gameManager.player2 = null;
+			gameManager.botWhite = null;
+			gameManager.botBlack = null;
 			gameManager.isPause = false;
 			gameManager.isEnd = false;
 			gameManager.table.CreatBoard();
@@ -56,8 +56,8 @@ public class MenuManager : MonoBehaviour
 		});
 		buttEvE.onClick.AddListener(() =>
 		{
-			gameManager.player1 = lv4;
-			gameManager.player2 = lv3;
+			gameManager.botWhite = lv4;
+			gameManager.botBlack = lv3;
 			gameManager.isPause = false;
 			gameManager.isEnd = false;
 			gameManager.table.CreatBoard();
