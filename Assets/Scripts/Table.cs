@@ -235,11 +235,8 @@ public class Board
 	}
 	public static Board Kick(int sx, int sy, int ex, int ey, Board b, bool visual = false, bool newBoard = false)
 	{
-		Debug.Log("start Kick");
-		Debug.Log("start pos: " + new Vector3Int(sx, sy)  + " target pos: " + new Vector3Int(ex, ey));
 		Checker c = b[sy, sx];
 		Vector3Int takenChecker = Board.AbleKick(c, new Vector3Int(ex, ey), b).Item2;
-		Debug.Log("taken pos: " + takenChecker);
 
 		if (newBoard) b = new Board(b);
 
@@ -254,7 +251,6 @@ public class Board
 		b[ey, ex] = c;
 		if (c.isWhite && c.position.y == 7) c.SetQueen(true);
 		if (!c.isWhite && c.position.y == 0) c.SetQueen(true);
-		Debug.Log("end Kick");
 		return b;
 	}
 	public static Board RealiseMove(Move move, Board b, bool visual = false)
@@ -379,7 +375,6 @@ public class Board
 		{
 			// Kick to simple Checker
 			if (Mathf.Abs(c.position.y - pos.y) != 2) return (false, -Vector3Int.one);
-			Debug.Log("Simple kickAble");
 
 			Vector3Int middle = (pos + c.position) / 2;
 			if (b.IsEmpty(pos) && !b.IsEmpty(middle) && b[middle.y, middle.x].isWhite != c.isWhite) return (true, middle);
@@ -387,7 +382,6 @@ public class Board
 		if (c.isQueen)
 		{
 			// Kick to Queen Checker
-			Debug.Log(c.position + " is Queen " + c.isQueen);
 			Vector3Int direction = new Vector3Int((pos.x - c.position.x) / Mathf.Abs(pos.x - c.position.x), (pos.y - c.position.y) / Mathf.Abs(pos.y - c.position.y));
 			Vector3Int pos_target = c.position + direction;
 
@@ -421,7 +415,6 @@ public class Board
 						return (false, -Vector3Int.one);
 					}
 				}
-				Debug.Log("Queen kickAble " + c.position + " -> " + pos_target + ": opp " + opp_found + " " + opp_pos);
 				pos_target += direction;
 			}
 			if (kick_onWay)

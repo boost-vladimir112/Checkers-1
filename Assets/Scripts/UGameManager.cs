@@ -10,13 +10,17 @@ public class UGameManager : MonoBehaviour
 	public Checker currentChecker, playerMovingChecker;
 	public Table table;
 	public int score = 0, step = 1;
+	public float speedChecker = 5;
 	public bool needToKick, isEnd = false, isPause = true, isMovePause = false;
 	public Bot botWhite, botBlack;
-	Vector3 playerTarget = Vector3.zero, botTarget = Vector3.zero;
-	Vector3Int startPos = Vector3Int.zero;
+
+	Vector3 playerTargetPos = Vector3.zero, botTargetPos = Vector3.zero, playerTakenPos = Vector3.zero, botTakenPos = Vector3.zero;
+	Checker playerTackenChecker = null, botTackenChecker = null;
+	Checker playerVisualChecker = null, botVisualChecker = null; 
+	List<Checker> botTackenCheckers = new List<Checker>();
 	Move botVisualMove = null;
 	int botStepMove = 0;
-	Checker botVisualChecker = null;
+
 	AudioSource audioSrc;
 
 	public delegate void VoidFunc();
@@ -72,9 +76,20 @@ public class UGameManager : MonoBehaviour
 		// bot visual of checkers move
 		if (botVisualMove != null && botVisualChecker != null)
 		{
-			if ((Mathf.Abs((botVisualChecker.checkerControll.transform.position - botTarget).magnitude) > 0.1f))
+			if (botTackenCheckers.Count > 0 && (Mathf.Abs((botVisualChecker.checkerControll.transform.position - botTakenPos).magnitude) < 0.1f))
 			{
-				botVisualChecker.checkerControll.transform.position += (botTarget - botVisualChecker.checkerControll.transform.position).normalized * 5 * Time.deltaTime;
+				if (botTackenChecker.checkerControll != null)
+				{
+					Debug.Log("I");
+					Debug.Log(botVisualChecker.checkerControll.transform.position + " " + botTakenPos);
+					botTackenChecker.checkerControll.DestroyMe();
+
+				}
+			}
+
+			if ((Mathf.Abs((botVisualChecker.checkerControll.transform.position - botTargetPos).magnitude) > 0.1f))
+			{
+				botVisualChecker.checkerControll.transform.position += (botTargetPos - botVisualChecker.checkerControll.transform.position).normalized * speedChecker * Time.deltaTime;
 				if (needToKick)
 				{
 					currentCircle.transform.position = botVisualChecker.checkerControll.transform.position;
@@ -82,13 +97,23 @@ public class UGameManager : MonoBehaviour
 			}
 			else if (botStepMove < botVisualMove.pos.Count - 1)
 			{
-				botVisualChecker.checkerControll.transform.position = botTarget;
+				botVisualChecker.checkerControll.transform.position = botTargetPos;
 				audioSrc.Play();
-				botTarget = botVisualMove.pos[++botStepMove] + table.transform.position;
+				if(botVisualMove.taken.Count > 0)
+				{
+					botTakenPos = botVisualMove.taken[botStepMove] + table.transform.position;
+					botTackenChecker = botTackenCheckers[botStepMove];
+					
+					Debug.Log("botTakenPos: " + botTakenPos);
+					Debug.Log("botTackenChecker: " + botTackenChecker.position);
+				}
+	
+				botTargetPos = botVisualMove.pos[++botStepMove] + table.transform.position;
+				Debug.Log("botStepMove: " + botStepMove);
 			}
 			else
 			{
-				botVisualChecker.checkerControll.transform.position = botTarget;
+				botVisualChecker.checkerControll.transform.position = botTargetPos;
 				audioSrc.Play();
 				botVisualChecker = null;
 				isMovePause = false;
@@ -97,30 +122,39 @@ public class UGameManager : MonoBehaviour
 		}
 
 		// player visual of checkers move
-		if (playerMovingChecker != null && (Mathf.Abs((playerMovingChecker.checkerControll.transform.position - playerTarget).magnitude) > 0.1f))
+		if (playerVisualChecker != null && playerVisualChecker.checkerControll != null)
 		{
-			playerMovingChecker.checkerControll.transform.position += (playerTarget - playerMovingChecker.checkerControll.transform.position).normalized * 5 * Time.deltaTime;
-			if (needToKick)
+			Debug.Log(playerVisualChecker.checkerControll);
+			if (playerTackenChecker != null && (Mathf.Abs((playerVisualChecker.checkerControll.transform.position - playerTakenPos).magnitude) < 0.1f))
 			{
-				currentCircle.transform.position = playerMovingChecker.checkerControll.transform.position;
-			}
-		}
-		else if (playerMovingChecker != null)
-		{
-			playerMovingChecker.checkerControll.transform.position = playerTarget;
-			audioSrc.Play();
-			if (needToKick)
-			{
-				currentCircle.transform.position = playerMovingChecker.checkerControll.transform.position;
-			}
-			playerMovingChecker = null;
-			isMovePause = false;
-			if (!needToKick)
-			{
-				NextStep();
-			}
-		}
+				if (playerTackenChecker.checkerControll != null)
+				{
+					Debug.Log("I");
+					playerTackenChecker.checkerControll.DestroyMe();
 
+				}
+			}
+
+			if (playerMovingChecker != null && (Mathf.Abs((playerMovingChecker.checkerControll.transform.position - playerTargetPos).magnitude) > 0.1f))
+			{
+				playerMovingChecker.checkerControll.transform.position += (playerTargetPos - playerMovingChecker.checkerControll.transform.position).normalized * speedChecker * Time.deltaTime;
+				currentCircle.transform.position = playerMovingChecker.checkerControll.transform.position;
+			
+			}
+			else if (playerMovingChecker != null)
+			{
+				playerMovingChecker.checkerControll.transform.position = playerTargetPos;
+				audioSrc.Play();
+				currentCircle.transform.position = playerMovingChecker.checkerControll.transform.position;
+			
+				playerMovingChecker = null;
+				isMovePause = false;
+				if (!needToKick)
+				{
+					NextStep();
+				}
+			}
+		}
 	}
 
 	public void NextStep()
@@ -165,18 +199,32 @@ public class UGameManager : MonoBehaviour
 		//bot2 move
 		if (step % 2 == 0 && botBlack != null)
 		{
-			botThinkMoveAsync(botBlack);
+			BotThinkMove(botBlack);
 		}
 	}
-	public void botThinkMoveAsync(Bot bot)
+	public void BotThinkMove(Bot bot)
 	{
+		Debug.Log("BotThinkMoveAsync: ");
 		botVisualMove = Board.MiniMax(table.board, bot.botHard * 2, bot == botWhite).Item2;
 		botVisualChecker = table.board[botVisualMove.pos[0].y, botVisualMove.pos[0].x];
-		botTarget = botVisualMove.pos[1] + table.transform.position;
-		isMovePause = true;
-		Debug.Log(botTarget);
 		botStepMove = 0;
-		Board.RealiseMove(botVisualMove, table.board, true);
+		botTargetPos = botVisualMove.pos[botStepMove+1] + table.transform.position;
+		//botTackenCheckers = new List<Checker>();
+		if (botVisualMove.taken.Count > 0)
+		{
+			Debug.Log("Takens");
+			botTackenCheckers.Clear();
+			foreach(Vector3Int v in botVisualMove.taken)
+			{
+				botTackenCheckers.Add(table.board[v.y, v.x]);
+			}
+			botTakenPos = botVisualMove.taken[botStepMove] + table.transform.position;
+			botTackenChecker = botTackenCheckers[botStepMove];
+			Debug.Log("botTakenPos: " + botTakenPos);
+			Debug.Log("botTackenChecker: " + botTackenChecker.position);
+		}
+		isMovePause = true;
+		Board.RealiseMove(botVisualMove, table.board);
 			
 		//NextStep();
 	}
@@ -185,10 +233,13 @@ public class UGameManager : MonoBehaviour
 		Vector3Int pos = GetVector3Int(GetMouseWorldPosition(table.transform.position));
 		if (currentChecker != null)
 		{
+			playerVisualChecker = currentChecker;
+			Debug.Log(playerVisualChecker.position);
+
 			if (!needToKick && Board.AbleMove(currentChecker, pos, table.board))
 			{
 				Board.Move(currentChecker, pos, table.board);
-				playerTarget = pos + table.transform.position;
+				playerTargetPos = pos + table.transform.position;
 				playerMovingChecker = currentChecker;
 
 				currentCircle.SetActive(false);
@@ -200,10 +251,12 @@ public class UGameManager : MonoBehaviour
 				(bool, Vector3Int) kiskStatus = Board.AbleKick(currentChecker, pos, table.board);
 				if (kiskStatus.Item1)
 				{
-					startPos = currentChecker.position;
-					Board.Kick(currentChecker, pos, table.board, true);
+					playerTakenPos = kiskStatus.Item2 + table.transform.position;
+					playerTackenChecker = table.board[kiskStatus.Item2.y, kiskStatus.Item2.x];
 
-					playerTarget = pos + table.transform.position;
+					Board.Kick(currentChecker, pos, table.board);
+
+					playerTargetPos = pos + table.transform.position;
 					isMovePause = true;
 
 					table.board.SetCheckers();
@@ -221,14 +274,14 @@ public class UGameManager : MonoBehaviour
 				else
 				{
 					ChooseCurrent(pos);
-					playerTarget = currentChecker.checkerControll.transform.position;
+					playerTargetPos = currentChecker.checkerControll.transform.position;
 				}
 
 			}
 			else
 			{
 				ChooseCurrent(pos);
-				playerTarget = currentChecker.checkerControll.transform.position;
+				playerTargetPos = currentChecker.checkerControll.transform.position;
 			}
 		}
 		else
