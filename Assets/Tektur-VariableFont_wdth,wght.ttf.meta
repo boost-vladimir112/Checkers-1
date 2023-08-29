@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c13ae5c9b35876044a0e66ce19728347
+guid: 03d8a24082e46dd4a9b142add90d3da0
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Ramona
+  - Tektur
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
