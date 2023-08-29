@@ -1,2 +1,2 @@
-Build path: D:/Unity/Release/PluginYG/PluginYG
-Build number: 7
+Build path: C:/Users/andre/OneDrive/Рабочий стол/shashki
+Build number: 14

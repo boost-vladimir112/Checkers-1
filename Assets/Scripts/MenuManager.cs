@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using YG;
 
 public class MenuManager : MonoBehaviour
 {
@@ -13,7 +14,9 @@ public class MenuManager : MonoBehaviour
 
 	private void Start()
 	{
+		int score = PlayerPrefs.GetInt("playerScore");
 		scoreText.text = PlayerPrefs.GetInt("playerScore").ToString();
+		YandexGame.NewLeaderboardScores("best", score);
 		butt1.onClick.AddListener(() => 
 		{
 			gameManager.botWhite = null;
