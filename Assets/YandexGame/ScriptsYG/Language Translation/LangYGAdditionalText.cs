@@ -29,7 +29,7 @@ namespace YG
             DoAssignAdditionalText();
         }
 
-        private void AssignAdditionalText()
+        public void AssignAdditionalText()
         {
             if (langYG)
                 DoAssignAdditionalText();
@@ -37,26 +37,23 @@ namespace YG
 
         private void DoAssignAdditionalText()
         {
-            if (_additionalText != null || _additionalText != "")
+            if (side == Side.Left)
             {
-                if (side == Side.Left)
-                {
-                    if (langYG.textLComponent)
-                        langYG.textLComponent.text = _additionalText + langYG.textLComponent.text;
+                if (langYG.textLComponent)
+                    langYG.textLComponent.text = _additionalText + langYG.textLComponent.text;
 #if YG_TEXT_MESH_PRO
-                    else if (langYG.textMPComponent)
-                        langYG.textMPComponent.text = _additionalText + langYG.textMPComponent.text;
+                else if (langYG.textMPComponent)
+                    langYG.textMPComponent.text = _additionalText + langYG.textMPComponent.text;
 #endif
-                }
-                else if (side == Side.Right)
-                {
-                    if (langYG.textLComponent)
-                        langYG.textLComponent.text += _additionalText;
+            }
+            else if (side == Side.Right)
+            {
+                if (langYG.textLComponent)
+                    langYG.textLComponent.text += _additionalText;
 #if YG_TEXT_MESH_PRO
-                    else if (langYG.textMPComponent)
-                        langYG.textMPComponent.text += _additionalText;
+                else if (langYG.textMPComponent)
+                    langYG.textMPComponent.text += _additionalText;
 #endif
-                }
             }
         }
     }
