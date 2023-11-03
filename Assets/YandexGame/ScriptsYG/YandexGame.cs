@@ -161,7 +161,7 @@ namespace YG
                 else if (infoYG.playerPhotoSize == InfoYG.PlayerPhotoSize.large)
                     _photoSize = "large";
 
-                InitializationSDK();
+                InitializationGame();
             }
         }
 
@@ -170,7 +170,7 @@ namespace YG
         {
             if (firstSceneLoad)
                 firstSceneLoad = false;
-            else
+            else if (infoYG.AdWhenLoadingScene)
                 _FullscreenShow();
         }
 
@@ -411,12 +411,12 @@ namespace YG
 
         #region Initialization SDK
         [DllImport("__Internal")]
-        private static extern void InitSDK_Internal(string playerPhotoSize, bool scopes);
+        private static extern void InitGame_Internal(string playerPhotoSize, bool scopes, bool gameReadyApi);
 
-        public void InitializationSDK()
+        public void InitializationGame()
         {
 #if !UNITY_EDITOR
-            InitSDK_Internal(_photoSize, infoYG.scopes);
+            InitGame_Internal(_photoSize, infoYG.scopes, infoYG.autoGameReadyAPI);
 #else
             string auth = "resolved";
             string name = Instance.infoYG.playerInfoSimulation.name;
@@ -444,6 +444,22 @@ namespace YG
             SetInitializationSDK(json);
 #endif
         }
+
+        [DllImport("__Internal")]
+        private static extern void GameReadyAPI_Internal();
+
+        public static void GameReadyAPI()
+        {
+            if (!Instance.infoYG.autoGameReadyAPI)
+            {
+#if !UNITY_EDITOR
+                GameReadyAPI_Internal();
+#else
+                Message("Game Ready API");
+#endif
+            }
+        }
+        public void _GameReadyAPI() => GameReadyAPI();
         #endregion Initialization SDK
 
         #region Init Leaderboard
@@ -516,8 +532,7 @@ namespace YG
 
         public void _FullscreenShow()
         {
-            if (!nowFullAd && !nowVideoAd &&
-                timerShowAd >= infoYG.fullscreenAdInterval)
+            if (!nowAdsShow && timerShowAd >= infoYG.fullscreenAdInterval)
             {
                 timerShowAd = 0;
 #if !UNITY_EDITOR
@@ -528,7 +543,10 @@ namespace YG
                 CloseFullAdInEditor();
 #endif
             }
-            else Message($"До запроса к показу Fullscreen рекламы {(infoYG.fullscreenAdInterval - timerShowAd).ToString("00.0")} сек.");
+            else
+            {
+                Message($"До запроса к показу Fullscreen рекламы {(infoYG.fullscreenAdInterval - timerShowAd).ToString("00.0")} сек.");
+            }
         }
 
         public static void FullscreenShow() => Instance._FullscreenShow();
@@ -726,10 +744,6 @@ namespace YG
                 }
 
                 NewLeaderboardScores(nameLB, result);
-
-#if UNITY_EDITOR
-                Message($"New Liderboard '{nameLB}' Record: {secondsScore} (Time type)");
-#endif
             }
         }
 
@@ -745,6 +759,13 @@ namespace YG
                     technoName = nameLB,
                     entries = "no data",
                     players = new LBPlayerData[1]
+                    {
+                        new LBPlayerData()
+                        {
+                            name = "no data",
+                            photo = null
+                        }
+                    }
                 };
                 onGetLeaderboard?.Invoke(lb);
             }
@@ -775,7 +796,7 @@ namespace YG
                     }
                 }
 
-                if (indexLB > -1)
+                if (indexLB >= 0)
                     onGetLeaderboard?.Invoke(lb[indexLB]);
                 else
                     NoData();
@@ -984,23 +1005,52 @@ namespace YG
 
             CloseVideoAd.Invoke();
             CloseVideoEvent?.Invoke();
+
+            if (rewardAdResult == RewardAdResult.Success)
+            {
+                RewardVideoAd.Invoke();
+                RewardVideoEvent?.Invoke(lastRewardAdID);
+            }
+            else if(rewardAdResult == RewardAdResult.Error)
+            {
+                ErrorVideo();
+            }
+
+            rewardAdResult = RewardAdResult.None;
         }
 
         public static Action<int> RewardVideoEvent;
+        private enum RewardAdResult { None, Success, Error };
+        private static RewardAdResult rewardAdResult = RewardAdResult.None;
+        private static int lastRewardAdID;
+
         public void RewardVideo(int id)
         {
+            lastRewardAdID = id;
 #if UNITY_EDITOR
             if (!Instance.infoYG.testErrorOfRewardedAdsInEditor)
                 timeOnOpenRewardedAds -= 3;
 #endif
+            rewardAdResult = RewardAdResult.None;
+
             if (Time.unscaledTime > timeOnOpenRewardedAds + 2)
             {
-                RewardVideoAd.Invoke();
-                RewardVideoEvent?.Invoke(id);
+                if (Instance.infoYG.rewardedAfterClosing)
+                {
+                    rewardAdResult = RewardAdResult.Success;
+                }
+                else
+                {
+                    RewardVideoAd.Invoke();
+                    RewardVideoEvent?.Invoke(id);
+                }
             }
             else
             {
-                ErrorVideo();
+                if (Instance.infoYG.rewardedAfterClosing)
+                    rewardAdResult = RewardAdResult.Error;
+                else
+                    ErrorVideo();
             }
         }
 
@@ -1418,6 +1468,7 @@ namespace YG
                 purchases[i].description = paymentsData.description[i];
                 purchases[i].imageURI = paymentsData.imageURI[i];
                 purchases[i].priceValue = paymentsData.priceValue[i];
+                purchases[i].consumed = paymentsData.consumed[i];
             }
 #else
             purchases = Instance.infoYG.purshasesSimulation;
@@ -1428,6 +1479,7 @@ namespace YG
         public static Action<string> PurchaseSuccessEvent;
         public void OnPurchaseSuccess(string id)
         {
+            PurchaseByID(id).consumed = true;
             PurchaseSuccess?.Invoke();
             PurchaseSuccessEvent?.Invoke(id);
         }
@@ -1478,7 +1530,7 @@ namespace YG
 
         #region Update
         int delayFirstCalls = -1;
-        static float timerShowAd;
+        public static float timerShowAd;
 #if !UNITY_EDITOR
         static float timerSaveCloud = 62;
 #endif
@@ -1551,6 +1603,7 @@ namespace YG
             public string[] description;
             public string[] imageURI;
             public string[] priceValue;
+            public bool[] consumed;
         }
         #endregion Json
     }

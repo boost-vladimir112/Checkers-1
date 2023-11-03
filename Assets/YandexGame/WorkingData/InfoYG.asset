@@ -21,10 +21,12 @@ MonoBehaviour:
     name: Player this
     uniqueID: 000
     photo: https://justplaygames.ru/public/icon_player.png
+  autoGameReadyAPI: 1
   AdWhenLoadingScene: 1
-  showFirstAd: 1
+  showFirstAd: 0
+  rewardedAfterClosing: 1
   adDisplayCalls: 0
-  fullscreenAdInterval: 80
+  fullscreenAdInterval: 60
   durationOfAdSimulation: 0.5
   testErrorOfRewardedAdsInEditor: 0
   saveCloud: 1
@@ -124,7 +126,7 @@ MonoBehaviour:
     thisPlayer:
       rank: 0
       score: 0
-  - technoName: time
+  - technoName: time1
     entries: 'Test LeaderBoard
 
       Name: time
@@ -237,6 +239,35 @@ MonoBehaviour:
     it: []
     de: []
     hi: []
+  fontsTMP:
+    defaultFont: []
+    ru: []
+    en: []
+    tr: []
+    az: []
+    be: []
+    he: []
+    hy: []
+    ka: []
+    et: []
+    fr: []
+    kk: []
+    ky: []
+    lt: []
+    lv: []
+    ro: []
+    tg: []
+    tk: []
+    uk: []
+    uz: []
+    es: []
+    pt: []
+    ar: []
+    id: []
+    ja: []
+    it: []
+    de: []
+    hi: []
   fontsSizeCorrect:
     ru: 
     en: 
@@ -271,20 +302,23 @@ MonoBehaviour:
     description: Product - Gun
     imageURI: https://justplaygames.ru/public/Paymant1.png
     priceValue: 5
+    consumed: 1
   - id: armor
     title: Armor
     description: Product - Armor
     imageURI: https://justplaygames.ru/public/Paymant2.png
     priceValue: 10
+    consumed: 1
   - id: grenade
     title: Grenade
     description: Product - Grenade
     imageURI: https://justplaygames.ru/public/Paymant3.png
     priceValue: 30
+    consumed: 1
   metricaEnable: 0
   metricaCounterID: 0
   debug: 1
-  archivingBuild: 0
+  archivingBuild: 1
   logoImageFormat: 1
   backgroundImageFormat: 3
   pixelRatioEnable: 0

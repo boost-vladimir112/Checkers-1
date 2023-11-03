@@ -10,5 +10,6 @@ namespace YG.Utils.Pay
         public string description;
         public string imageURI;
         public string priceValue;
+        public bool consumed;
     }
 }
